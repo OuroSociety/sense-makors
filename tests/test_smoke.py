@@ -7,6 +7,7 @@ from market_maker import MarketMaker
 from config import (
     SYMBOL, ORDER_BOOK_DEPTH, SPREAD_PERCENTAGE
 )
+from utils.decimal_utils import safe_decimal_mul
 
 class TestSmoke:
     @pytest.fixture
@@ -128,9 +129,9 @@ class TestSmoke:
             "expected": {
                 "num_orders": 2,
                 "should_succeed": True,
-                # Spread should be around SPREAD_PERCENTAGE of mid price
-                "min_spread": Decimal("50000") * SPREAD_PERCENTAGE * Decimal("0.8"),  # 80% of target spread
-                "max_spread": Decimal("50000") * SPREAD_PERCENTAGE * Decimal("1.2")   # 120% of target spread
+                # Use safe_decimal_mul for all decimal calculations
+                "min_spread": safe_decimal_mul("50000", SPREAD_PERCENTAGE, "0.8"),
+                "max_spread": safe_decimal_mul("50000", SPREAD_PERCENTAGE, "1.2")
             }
         },
         {
@@ -145,8 +146,8 @@ class TestSmoke:
             "expected": {
                 "num_orders": 2,
                 "should_succeed": True,
-                "min_spread": Decimal("50000") * SPREAD_PERCENTAGE * Decimal("0.8"),
-                "max_spread": Decimal("50000") * SPREAD_PERCENTAGE * Decimal("1.2")
+                "min_spread": safe_decimal_mul("50000", SPREAD_PERCENTAGE, "0.8"),
+                "max_spread": safe_decimal_mul("50000", SPREAD_PERCENTAGE, "1.2")
             }
         },
         {
