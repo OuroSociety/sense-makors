@@ -9,6 +9,7 @@ from config import (
 from trading.position_tracker import PositionTracker
 from trading.risk_manager import RiskManager
 from utils.logger import setup_logger
+from trading.wallet_manager import WalletManager
 
 logger = setup_logger("market_maker")
 
@@ -18,6 +19,7 @@ class MarketMaker:
         self.active_orders: Dict[str, Dict] = {}
         self.position_tracker = PositionTracker()
         self.risk_manager = RiskManager(self.position_tracker)
+        self.wallet_manager = WalletManager()
         self.logger = logger
         
         # Set initial risk limits
@@ -76,7 +78,20 @@ class MarketMaker:
                     "amount": str(MIN_ORDER_SIZE)
                 })
             
-            return orders
+            # Check wallet balances before returning orders
+            filtered_orders = []
+            for order in orders:
+                if self.wallet_manager.can_place_order(
+                    order["side"],
+                    order["symbol"],
+                    Decimal(order["amount"]),
+                    Decimal(order["price"])
+                ):
+                    filtered_orders.append(order)
+                else:
+                    self.logger.warning(f"Insufficient balance for order: {order}")
+                    
+            return filtered_orders
             
         except Exception as e:
             self.logger.error(f"Error calculating orders: {str(e)}", exc_info=True)
