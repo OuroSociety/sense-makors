@@ -72,30 +72,33 @@ def run_api_tests(client: FameexClient, symbol: str, full_test: bool = False) ->
     results = {}
     
     try:
-        # First verify the trading pair exists
+        # First verify the trading pair exists by checking order book
         logger.info(f"\nVerifying trading pair {symbol}...")
-        summary_response = client._request('GET', "/v2/public/summary")
-        if summary_response and isinstance(summary_response, dict) and 'data' in summary_response:
-            trading_pairs = [pair['trading_pairs'] for pair in summary_response['data']]
-            normalized_symbol = symbol.replace('-', '').lower()
+        order_book = client.get_order_book(symbol)
+        
+        if order_book and isinstance(order_book, dict):
+            data = order_book.get('data', {})
+            bids = data.get('bids', [])
+            asks = data.get('asks', [])
             
-            if normalized_symbol not in [p.lower() for p in trading_pairs]:
+            if bids or asks:
+                logger.info(f"✓ Trading pair {symbol} is available")
+                if bids:
+                    logger.info(f"First bid: {bids[0]}")
+                if asks:
+                    logger.info(f"First ask: {asks[0]}")
+            else:
                 logger.error(f"Trading pair {symbol} not found!")
-                logger.info("Available pairs:")
-                for pair in trading_pairs:
-                    logger.info(f"  - {pair}")
                 return {
                     'pair_check': {
                         'success': False,
                         'error': f"Trading pair {symbol} not available",
-                        'response': trading_pairs
+                        'response': order_book
                     }
                 }
-            else:
-                logger.info(f"✓ Trading pair {symbol} is available")
         else:
             logger.warning("Could not verify trading pairs - continuing anyway")
-    
+
         # Test order book
         logger.info(f"\nTesting order book API for {symbol}...")
         order_book = client.get_order_book(symbol, ORDER_BOOK_DEPTH)
@@ -373,6 +376,127 @@ def get_market_summary(client: FameexClient, filter_kas: bool = True) -> None:
     except Exception as e:
         logger.error(f"Error fetching market summary: {str(e)}")
 
+def test_market_making(client: FameexClient, symbol: str) -> Dict[str, Dict[str, Any]]:
+    """Test market making functionality"""
+    results = {}
+    logger.info(f"\n=== Testing Market Making for {symbol} ===")
+    
+    try:
+        # 1. Test order validation (without execution)
+        logger.info("\nTesting order validation...")
+        test_bid = {
+            "side": "BUY",
+            "type": "LIMIT",
+            "volume": "100",
+            "price": "1.0"
+        }
+        
+        test_ask = {
+            "side": "SELL",
+            "type": "LIMIT",
+            "volume": "100",
+            "price": "1.1"
+        }
+        
+        # Test bid order
+        bid_test = client.test_order(
+            symbol=symbol,
+            side=test_bid["side"],
+            order_type=test_bid["type"],
+            volume=test_bid["volume"],
+            price=test_bid["price"]
+        )
+        
+        if bid_test is not None:
+            logger.info("✓ Bid order validation successful")
+            results['bid_test'] = {
+                'success': True,
+                'response': bid_test
+            }
+        else:
+            logger.error("✗ Bid order validation failed")
+            results['bid_test'] = {
+                'success': False,
+                'error': 'Order validation failed'
+            }
+            
+        # Test ask order
+        ask_test = client.test_order(
+            symbol=symbol,
+            side=test_ask["side"],
+            order_type=test_ask["type"],
+            volume=test_ask["volume"],
+            price=test_ask["price"]
+        )
+        
+        if ask_test is not None:
+            logger.info("✓ Ask order validation successful")
+            results['ask_test'] = {
+                'success': True,
+                'response': ask_test
+            }
+        else:
+            logger.error("✗ Ask order validation failed")
+            results['ask_test'] = {
+                'success': False,
+                'error': 'Order validation failed'
+            }
+            
+        # 2. Check current open orders
+        logger.info("\nChecking open orders...")
+        open_orders = client.get_open_orders(symbol)
+        if isinstance(open_orders, list):
+            logger.info(f"Found {len(open_orders)} open orders")
+            for order in open_orders[:5]:  # Show first 5 orders
+                logger.info(f"Order: {order.get('orderId')} - {order.get('side')} "
+                          f"{order.get('origQty')} @ {order.get('price')}")
+            results['open_orders'] = {
+                'success': True,
+                'response': open_orders
+            }
+        else:
+            logger.error("✗ Failed to fetch open orders")
+            results['open_orders'] = {
+                'success': False,
+                'error': 'Failed to fetch open orders'
+            }
+            
+        # 3. Check trading history
+        logger.info("\nChecking trading history...")
+        trades = client.get_my_trades(symbol)
+        if isinstance(trades, list):
+            logger.info(f"Found {len(trades)} trades")
+            for trade in trades[:5]:  # Show last 5 trades
+                logger.info(f"Trade: {trade.get('id')} - {trade.get('side')} "
+                          f"{trade.get('qty')} @ {trade.get('price')}")
+            results['trades'] = {
+                'success': True,
+                'response': trades
+            }
+        else:
+            logger.error("✗ Failed to fetch trading history")
+            results['trades'] = {
+                'success': False,
+                'error': 'Failed to fetch trading history'
+            }
+            
+    except Exception as e:
+        logger.error(f"Error during market making test: {str(e)}")
+        results['error'] = {
+            'success': False,
+            'error': str(e)
+        }
+        
+    # Generate summary
+    success_count = sum(1 for r in results.values() if r.get('success', False))
+    total_count = len(results)
+    
+    logger.info("\n=== Market Making Test Summary ===")
+    logger.info(f"Success Rate: {(success_count/total_count)*100:.1f}%")
+    logger.info(f"Tests Passed: {success_count}/{total_count}")
+    
+    return results
+
 def main():
     parser = argparse.ArgumentParser(description='ourOS Market Maker CLI')
     
@@ -420,6 +544,15 @@ def main():
         help='Show all pairs (default: show only KAS pairs)'
     )
     
+    # Add market making test command
+    mm_test_parser = subparsers.add_parser('test-mm', help='Test market making functionality')
+    mm_test_parser.add_argument(
+        '--symbol',
+        type=str,
+        default=SYMBOL,
+        help=f'Trading pair to test (default: {SYMBOL})'
+    )
+    
     # Parse arguments
     args = parser.parse_args()
     
@@ -451,6 +584,12 @@ def main():
         
     elif args.command == 'summary':
         get_market_summary(client, filter_kas=not args.all)
+        
+    elif args.command == 'test-mm':
+        logger.info(f"Testing market making functionality for {args.symbol}...")
+        results = test_market_making(client, args.symbol)
+        success = any(r.get('success', False) for r in results.values())
+        sys.exit(0 if success else 1)
         
     else:
         parser.print_help()

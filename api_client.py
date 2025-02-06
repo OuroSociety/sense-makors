@@ -4,6 +4,9 @@ import hmac
 import hashlib
 from typing import Dict, Any, Optional
 from config import API_BASE_URL
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FameexClient:
     def __init__(self, api_key: str, api_secret: str):
@@ -47,31 +50,51 @@ class FameexClient:
                 response = self.session.post(url, json=params, headers=headers)
                 
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            
+            # Handle both direct data and data within 'data' field
+            if isinstance(data, dict) and 'data' in data:
+                return data['data']
+            return data
         except Exception as e:
-            print(f"API request error: {str(e)}")
+            logger.error(f"API request error: {str(e)}")
             return None
             
+    def _format_symbol(self, symbol: str) -> str:
+        """Format symbol to match exchange requirements"""
+        return symbol.lower().replace('-', '')
+
     def get_order_book(self, symbol: str, limit: int = 100) -> Dict[str, Any]:
         """Get the order book for a symbol"""
         endpoint = "/sapi/v1/depth"
         params = {
-            "symbol": symbol.upper(),
+            "symbol": self._format_symbol(symbol),
             "limit": limit
         }
-        return self._request('GET', endpoint, params)
+        response = self._request('GET', endpoint, params)
+        
+        # Transform response to expected format
+        if response and isinstance(response, dict):
+            return {
+                'data': {
+                    'bids': response.get('bids', []),
+                    'asks': response.get('asks', []),
+                    'timestamp': response.get('time')
+                }
+            }
+        return response
         
     def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """Get 24hr ticker information"""
         endpoint = "/sapi/v1/ticker"
-        params = {"symbol": symbol.upper()}
+        params = {"symbol": self._format_symbol(symbol)}
         return self._request('GET', endpoint, params)
         
     def get_trades(self, symbol: str, limit: int = 100) -> Dict[str, Any]:
         """Get recent trades"""
         endpoint = "/sapi/v1/trades"
         params = {
-            "symbol": symbol.upper(),
+            "symbol": self._format_symbol(symbol),
             "limit": limit
         }
         return self._request('GET', endpoint, params)
@@ -81,7 +104,7 @@ class FameexClient:
         """Get kline/candlestick data"""
         endpoint = "/sapi/v1/klines"
         params = {
-            "symbol": symbol.upper(),
+            "symbol": self._format_symbol(symbol),
             "interval": interval,
             "limit": limit
         }
@@ -92,7 +115,7 @@ class FameexClient:
         """Place a new order"""
         endpoint = "/sapi/v1/order"
         params = {
-            "symbol": symbol.upper(),
+            "symbol": self._format_symbol(symbol),
             "volume": volume,
             "side": side.upper(),
             "type": order_type.upper()
@@ -106,7 +129,7 @@ class FameexClient:
         """Cancel an existing order"""
         endpoint = "/sapi/v1/cancel"
         params = {
-            "symbol": symbol.lower(),
+            "symbol": self._format_symbol(symbol),
             "orderId": order_id
         }
         return self._request('POST', endpoint, params, signed=True)
@@ -115,7 +138,7 @@ class FameexClient:
         """Get current open orders"""
         endpoint = "/sapi/v1/openOrders"
         params = {
-            "symbol": symbol.lower(),
+            "symbol": self._format_symbol(symbol),
             "limit": limit
         }
         return self._request('GET', endpoint, params, signed=True)
@@ -129,7 +152,22 @@ class FameexClient:
         """Get user's trade history"""
         endpoint = "/sapi/v1/myTrades"
         params = {
-            "symbol": symbol.upper(),
+            "symbol": self._format_symbol(symbol),
             "limit": limit
         }
-        return self._request('GET', endpoint, params, signed=True) 
+        return self._request('GET', endpoint, params, signed=True)
+        
+    def test_order(self, symbol: str, side: str, order_type: str,
+                   volume: str, price: str = None) -> Dict[str, Any]:
+        """Test a new order without sending to matching engine"""
+        endpoint = "/sapi/v1/order/test"
+        params = {
+            "symbol": self._format_symbol(symbol).upper(),
+            "volume": volume,
+            "side": side.upper(),
+            "type": order_type.upper()
+        }
+        if price:
+            params["price"] = price
+            
+        return self._request('POST', endpoint, params, signed=True) 

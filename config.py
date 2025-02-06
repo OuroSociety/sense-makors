@@ -6,12 +6,12 @@ from decimal import Decimal
 load_dotenv()
 
 # API Configuration
-API_BASE_URL = "https://api.fameex.com"  # No version in base URL
+API_BASE_URL = "https://openapi.fameex.net"  # Updated to match API docs
 API_KEY = os.getenv("FAMEEX_API_KEY")
 API_SECRET = os.getenv("FAMEEX_API_SECRET")
 
 # Trading Configuration
-SYMBOL = "KAS-USDT"  # Replace with actual trading pair
+SYMBOL = "SZARUSDT"  # Changed to uppercase as per API docs
 ORDER_BOOK_DEPTH = 5
 SPREAD_PERCENTAGE = Decimal("0.02")  # 2% spread
 MIN_ORDER_SIZE = Decimal("100")  # Minimum order size

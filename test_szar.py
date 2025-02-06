@@ -109,7 +109,7 @@ def test_token_pairs(base_url, api_key, api_secret, logger):
                             results['success'] += 1
                             results['details'].append(f"{endpoint_name}: Active - Has recent trades")
                             logger.info(f"Latest trade: {data[0]}")
-                            else:
+                        else:
                             results['failed'] += 1
                             results['details'].append(f"{endpoint_name}: Inactive - No trades")
                     
@@ -127,15 +127,15 @@ def test_token_pairs(base_url, api_key, api_secret, logger):
                             results['success'] += 1
                             results['details'].append(f"{endpoint_name}: Active - Has kline data")
                             logger.info(f"Latest kline: {data[0]}")
-                            else:
+                        else:
                             results['failed'] += 1
                             results['details'].append(f"{endpoint_name}: Inactive - No kline data")
-                                else:
+                else:
                     error_msg = f"HTTP {response.status_code}: {response.text}"
                     results['failed'] += 1
                     results['details'].append(f"{endpoint_name}: Failed - {error_msg}")
                     
-                except Exception as e:
+            except Exception as e:
                 error_msg = f"Error: {str(e)}"
                 results['failed'] += 1
                 results['details'].append(f"{endpoint_name}: Failed - {error_msg}")
