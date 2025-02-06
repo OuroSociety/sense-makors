@@ -6,7 +6,7 @@ from decimal import Decimal
 load_dotenv()
 
 # API Configuration
-API_BASE_URL = "https://api.fameex.com"
+API_BASE_URL = "https://api.fameex.com"  # No version in base URL
 API_KEY = os.getenv("FAMEEX_API_KEY")
 API_SECRET = os.getenv("FAMEEX_API_SECRET")
 
