@@ -41,7 +41,8 @@ def test_pair_formats(base_url, api_key, api_secret, logger):
             'szarusdt',
             'SZAR/USDT',
             'USDT_SZAR',
-            'USDT-SZAR'
+            'USDT-SZAR',
+            'SZAR.USDT'  # Some APIs use dot notation
         ],
         'BTC': [
             'BTC-USDT',
@@ -71,7 +72,12 @@ def test_pair_formats(base_url, api_key, api_secret, logger):
         'orderbook': '/api/v2/orderbook',
         'ticker': '/api/v2/ticker',
         'summary': '/v2/public/summary',
-        'market_pair': '/v2/public/trades/market_pair'
+        'market_pair': '/v2/public/trades/market_pair',
+        'ticker_24hr': '/api/v2/ticker/24hr',  # Added 24hr ticker endpoint
+        'ticker_price': '/api/v2/ticker/price',  # Added price ticker endpoint
+        'assets': '/v2/public/assets',  # Added assets endpoint
+        'orderbook_market': '/v2/public/orderbook/market_pair',  # Added market orderbook endpoint
+        'kline': '/v1/market/history/kline'  # Added kline/candlestick endpoint
     }
     
     headers = {
@@ -101,6 +107,8 @@ def test_pair_formats(base_url, api_key, api_secret, logger):
                 if endpoint_name != 'summary':
                     if endpoint_name == 'market_pair':
                         url += f"?market_pair={pair_format}"
+                    elif endpoint_name == 'kline':
+                        url += f"?symbol={pair_format}&period=1"  # Test with 1min candles
                     else:
                         url += f"?symbol={pair_format}"
                 
