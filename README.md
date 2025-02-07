@@ -121,6 +121,9 @@ This software is for professional use only. The AI agent integration system is u
 Built with 🧠 by the ourOS team
 
 
+Learn more at https://discord.gg/UtH2wFrub8
+
+
 
 
 
