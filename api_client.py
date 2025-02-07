@@ -2,9 +2,11 @@ import requests
 import time
 import hmac
 import hashlib
-import base64
 from typing import Dict, Any, Optional
 from config import API_BASE_URL
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FameexClient:
     def __init__(self, api_key: str, api_secret: str):
@@ -29,18 +31,16 @@ class FameexClient:
         """Make API request with optional signing"""
         url = f"{API_BASE_URL}{endpoint}"
         headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json'
         }
         
         if signed:
             timestamp = str(int(time.time()))
             signature = self._generate_signature(timestamp, method, endpoint, params)
             headers.update({
-                'FX-ACCESS-KEY': self.api_key,
-                'FX-ACCESS-SIGN': signature,
-                'FX-ACCESS-TIMESTAMP': timestamp,
-                'FX-ACCESS-VERSION': 'v1.0'
+                'X-CH-APIKEY': self.api_key,
+                'X-CH-SIGN': signature, 
+                'X-CH-TS': timestamp
             })
             
         try:
@@ -48,80 +48,126 @@ class FameexClient:
                 response = self.session.get(url, params=params, headers=headers)
             else:
                 response = self.session.post(url, json=params, headers=headers)
-            
-            print(f"Request URL: {response.url}")
-            print(f"Response Status: {response.status_code}")
-            print(f"Response Text: {response.text}")
                 
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            
+            # Handle both direct data and data within 'data' field
+            if isinstance(data, dict) and 'data' in data:
+                return data['data']
+            return data
         except Exception as e:
-            print(f"API request error: {str(e)}")
+            logger.error(f"API request error: {str(e)}")
             return None
             
-    def get_order_book(self, symbol: str, limit: int = 5) -> Dict[str, Any]:
-        """Get the order book for a specific symbol"""
-        # First check if the trading pair exists
-        try:
-            # Get all available pairs
-            summary_endpoint = "/v2/public/summary"
-            summary = self._request('GET', summary_endpoint)
-            
-            if summary and isinstance(summary, dict) and 'data' in summary:
-                # Check if our pair exists
-                trading_pairs = [pair['trading_pairs'] for pair in summary['data']]
-                normalized_symbol = symbol.replace('-', '').lower()  # Convert SZAR-cUSD to szarcusd
-                
-                if normalized_symbol not in [p.lower() for p in trading_pairs]:
-                    print(f"Warning: Trading pair {symbol} not found in available pairs:")
-                    print("Available pairs:", trading_pairs)
-                    return None
-            
-            # If pair exists or we couldn't verify, try to get order book
-            market_pair = symbol.replace('-', '_')
-            endpoint = "/v2/public/orderbook/market_pair"
-            params = {
-                "market_pair": market_pair,
-                "level": 3,
-                "depth": limit
-            }
-            response = self._request('GET', endpoint, params)
-            
-            if response is None:
-                print(f"Error: No response from order book API for {symbol}")
-                return None
-                
-            if isinstance(response, dict) and 'code' in response:
-                if response['code'] != '0':
-                    print(f"API Error: {response.get('message', 'Unknown error')}")
-                    return None
-                    
-            return response
-            
-        except Exception as e:
-            print(f"Error fetching order book: {str(e)}")
-            return None
+    def _format_symbol(self, symbol: str) -> str:
+        """Format symbol to match exchange requirements"""
+        return symbol.lower().replace('-', '')
+
+    def get_order_book(self, symbol: str, limit: int = 100) -> Dict[str, Any]:
+        """Get the order book for a symbol"""
+        endpoint = "/sapi/v1/depth"
+        params = {
+            "symbol": self._format_symbol(symbol),
+            "limit": limit
+        }
+        response = self._request('GET', endpoint, params)
         
-    def get_account_balance(self) -> Dict[str, Any]:
-        """Get account balances"""
-        endpoint = "/v1/api/account/wallet"
-        return self._request('GET', endpoint, signed=True)
+        # Transform response to expected format
+        if response and isinstance(response, dict):
+            return {
+                'data': {
+                    'bids': response.get('bids', []),
+                    'asks': response.get('asks', []),
+                    'timestamp': response.get('time')
+                }
+            }
+        return response
         
     def get_ticker(self, symbol: str) -> Dict[str, Any]:
-        """Get ticker information for a symbol"""
-        endpoint = "/api/v2/ticker/24hr"
-        params = {"symbol": symbol} if symbol else {}
+        """Get 24hr ticker information"""
+        endpoint = "/sapi/v1/ticker"
+        params = {"symbol": self._format_symbol(symbol)}
         return self._request('GET', endpoint, params)
         
-    def place_order(self, symbol: str, side: int, order_type: int, 
-                   price: str, amount: str) -> Dict[str, Any]:
-        """Place a new order"""
-        endpoint = "/spot/trade/orders"
+    def get_trades(self, symbol: str, limit: int = 100) -> Dict[str, Any]:
+        """Get recent trades"""
+        endpoint = "/sapi/v1/trades"
         params = {
-            "symbol": symbol,
-            "side": side,
-            "orderType": order_type,
-            "price": price,
-            "amount": amount
+            "symbol": self._format_symbol(symbol),
+            "limit": limit
         }
+        return self._request('GET', endpoint, params)
+        
+    def get_klines(self, symbol: str, interval: str = "1min", 
+                   limit: int = 100) -> Dict[str, Any]:
+        """Get kline/candlestick data"""
+        endpoint = "/sapi/v1/klines"
+        params = {
+            "symbol": self._format_symbol(symbol),
+            "interval": interval,
+            "limit": limit
+        }
+        return self._request('GET', endpoint, params)
+        
+    def place_order(self, symbol: str, side: str, order_type: str,
+                    volume: str, price: str = None) -> Dict[str, Any]:
+        """Place a new order"""
+        endpoint = "/sapi/v1/order"
+        params = {
+            "symbol": self._format_symbol(symbol),
+            "volume": volume,
+            "side": side.upper(),
+            "type": order_type.upper()
+        }
+        if price:
+            params["price"] = price
+            
+        return self._request('POST', endpoint, params, signed=True)
+        
+    def cancel_order(self, symbol: str, order_id: str) -> Dict[str, Any]:
+        """Cancel an existing order"""
+        endpoint = "/sapi/v1/cancel"
+        params = {
+            "symbol": self._format_symbol(symbol),
+            "orderId": order_id
+        }
+        return self._request('POST', endpoint, params, signed=True)
+        
+    def get_open_orders(self, symbol: str, limit: int = 100) -> Dict[str, Any]:
+        """Get current open orders"""
+        endpoint = "/sapi/v1/openOrders"
+        params = {
+            "symbol": self._format_symbol(symbol),
+            "limit": limit
+        }
+        return self._request('GET', endpoint, params, signed=True)
+        
+    def get_account_info(self) -> Dict[str, Any]:
+        """Get account information"""
+        endpoint = "/sapi/v1/account"
+        return self._request('GET', endpoint, signed=True)
+        
+    def get_my_trades(self, symbol: str, limit: int = 100) -> Dict[str, Any]:
+        """Get user's trade history"""
+        endpoint = "/sapi/v1/myTrades"
+        params = {
+            "symbol": self._format_symbol(symbol),
+            "limit": limit
+        }
+        return self._request('GET', endpoint, params, signed=True)
+        
+    def test_order(self, symbol: str, side: str, order_type: str,
+                   volume: str, price: str = None) -> Dict[str, Any]:
+        """Test a new order without sending to matching engine"""
+        endpoint = "/sapi/v1/order/test"
+        params = {
+            "symbol": self._format_symbol(symbol).upper(),
+            "volume": volume,
+            "side": side.upper(),
+            "type": order_type.upper()
+        }
+        if price:
+            params["price"] = price
+            
         return self._request('POST', endpoint, params, signed=True) 

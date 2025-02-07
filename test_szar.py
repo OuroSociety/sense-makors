@@ -13,7 +13,7 @@ def setup_logging():
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
         
-    log_file = os.path.join(log_dir, f"pair_test_{timestamp}.log")
+    log_file = os.path.join(log_dir, f"szar_test_{timestamp}.log")
     
     # Configure logging
     logging.basicConfig(
@@ -28,141 +28,148 @@ def setup_logging():
     logger.info(f"Logging to: {log_file}")
     return logger
 
-def test_pair_formats(base_url, api_key, api_secret, logger):
-    """Test different formats of SZAR-USDT, BTC-USDT, and KANGO-USDT pairs across multiple endpoints"""
+def test_token_pairs(base_url, api_key, api_secret, logger):
+    """Test token pairs using FameEX API v1"""
     
-    # Test all possible format variations
-    pair_formats = {
-        'SZAR': [
-            'SZAR-USDT',
-            'SZARUSDT',
-            'SZAR_USDT',
-            'szar-usdt',
-            'szarusdt',
-            'SZAR/USDT',
-            'USDT_SZAR',
-            'USDT-SZAR',
-            'SZAR.USDT'  # Some APIs use dot notation
-        ],
-        'BTC': [
-            'BTC-USDT',
-            'BTCUSDT',
-            'BTC_USDT',
-            'btc-usdt',
-            'btcusdt',
-            'BTC/USDT',
-            'USDT_BTC',
-            'USDT-BTC'
-        ],
-        'KANGO': [
-            'KANGO-USDT',
-            'KANGOUSDT',
-            'KANGO_USDT',
-            'kango-usdt',
+    # Test exact trading pairs (lowercase as per API docs)
+    token_pairs = [
             'kangousdt',
-            'KANGO/USDT',
-            'USDT_KANGO',
-            'USDT-KANGO'
-        ]
-    }
-    
-    # All possible endpoints to test
-    endpoints = {
-        'trades': '/api/v2/trades',
-        'orderbook': '/api/v2/orderbook',
-        'ticker': '/api/v2/ticker',
-        'summary': '/v2/public/summary',
-        'market_pair': '/v2/public/trades/market_pair',
-        'ticker_24hr': '/api/v2/ticker/24hr',  # Added 24hr ticker endpoint
-        'ticker_price': '/api/v2/ticker/price',  # Added price ticker endpoint
-        'assets': '/v2/public/assets',  # Added assets endpoint
-        'orderbook_market': '/v2/public/orderbook/market_pair',  # Added market orderbook endpoint
-        'kline': '/v1/market/history/kline'  # Added kline/candlestick endpoint
-    }
-    
-    headers = {
-        'AccessKey': api_key,
-        'Content-Type': 'application/json'
-    }
+        'kyrousdt',
+        'kroakusdt',
+        'keirousdt',
+        'szarusdt'
+    ]
     
     # Log test configuration
     logger.info("\n=== Test Configuration ===")
-    logger.info(f"Base URL: {base_url}")
-    logger.info(f"API Key: {api_key}")
-    logger.info("Testing Pairs: SZAR-USDT, BTC-USDT, KANGO-USDT")
-    logger.info(f"Endpoints: {', '.join(endpoints.keys())}\n")
+    logger.info(f"Testing Trading Pairs")
+    logger.info(f"Pairs: {', '.join(token_pairs)}\n")
     
-    results_summary = {coin: {'success': 0, 'failed': 0} for coin in pair_formats.keys()}
+    overall_results = {}
     
-    for coin in ['SZAR', 'BTC', 'KANGO']:
-        logger.info(f"\n=== Testing {coin}-USDT Pair Availability ===")
-        logger.info(f"Timestamp: {datetime.now().isoformat()}\n")
+    for pair in token_pairs:
+        logger.info(f"\n\n=== Testing Trading Pair: {pair} ===")
+        logger.info("=" * 50)
         
-        for endpoint_name, endpoint in endpoints.items():
-            logger.info(f"\nTesting {endpoint_name} endpoint:")
-            logger.info("-" * 50)
-            
-            for pair_format in pair_formats[coin]:
-                url = f"{base_url}{endpoint}"
-                if endpoint_name != 'summary':
-                    if endpoint_name == 'market_pair':
-                        url += f"?market_pair={pair_format}"
-                    elif endpoint_name == 'kline':
-                        url += f"?symbol={pair_format}&period=1"  # Test with 1min candles
-                    else:
-                        url += f"?symbol={pair_format}"
+        # Define core endpoints to test
+        endpoints = {
+            'depth': {
+                'url': 'https://openapi.fameex.net/sapi/v1/depth',
+                'params': {'symbol': pair, 'limit': 100},
+                'expected_fields': ['bids', 'asks']
+            },
+            'trades': {
+                'url': 'https://openapi.fameex.net/sapi/v1/trades',
+                'params': {'symbol': pair, 'limit': 100},
+                'expected_fields': ['side', 'price', 'qty', 'time']
+            },
+            'ticker': {
+                'url': 'https://openapi.fameex.net/sapi/v1/ticker',
+                'params': {'symbol': pair},
+                'expected_fields': ['vol', 'last', 'buy', 'sell', 'time']
+            },
+            'klines': {
+                'url': 'https://openapi.fameex.net/sapi/v1/klines',
+                'params': {'symbol': pair, 'interval': '1min', 'limit': 100},
+                'expected_fields': ['high', 'low', 'open', 'close', 'vol']
+            }
+        }
+        
+        results = {'success': 0, 'failed': 0, 'details': []}
+        
+        for endpoint_name, endpoint_info in endpoints.items():
+            try:
+                url = endpoint_info['url']
+                params = endpoint_info['params']
                 
-                try:
-                    response = requests.get(url, headers=headers)
+                logger.info(f"\nTesting {endpoint_name}:")
+                logger.info(f"URL: {url}")
+                logger.info(f"Params: {params}")
+                
+                response = requests.get(url, params=params)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    logger.debug(f"Response: {json.dumps(data, indent=2)}")
                     
-                    logger.info(f"\nTesting {pair_format} at {url}")
-                    logger.info(f"Status Code: {response.status_code}")
-                    
-                    if response.status_code == 200:
-                        data = response.json()
-                        if endpoint_name == 'summary':
-                            pairs = [p for p in data.get('data', []) if coin in str(p)]
-                            if pairs:
-                                logger.info(f"Found {coin} pairs in summary:")
-                                for pair in pairs:
-                                    logger.info(json.dumps(pair, indent=2))
-                                results_summary[coin]['success'] += 1
-                            else:
-                                logger.info(f"No {coin} pairs found in summary")
-                                results_summary[coin]['failed'] += 1
+                    if endpoint_name == 'depth':
+                        if data.get('bids') or data.get('asks'):
+                            results['success'] += 1
+                            results['details'].append(f"{endpoint_name}: Active - Has order book data")
+                            if data.get('bids'):
+                                logger.info(f"First bid: {data['bids'][0]}")
+                            if data.get('asks'):
+                                logger.info(f"First ask: {data['asks'][0]}")
                         else:
-                            if isinstance(data, dict) and not any(data.values()) and coin in ['BTC', 'KANGO']:
-                                logger.warning(f"Warning: Empty response for {coin} pair - possible API issue")
-                                results_summary[coin]['failed'] += 1
-                            elif isinstance(data, list) and not data and coin in ['BTC', 'KANGO']:
-                                logger.warning(f"Warning: Empty response for {coin} pair - possible API issue")
-                                results_summary[coin]['failed'] += 1
-                            else:
-                                logger.info("Response: " + json.dumps(data, indent=2))
-                                if data:  # If we got any data back
-                                    results_summary[coin]['success'] += 1
-                                else:
-                                    results_summary[coin]['failed'] += 1
-                    else:
-                        logger.error(f"Error Response: {response.text}")
-                        results_summary[coin]['failed'] += 1
+                            results['failed'] += 1
+                            results['details'].append(f"{endpoint_name}: Inactive - No order book data")
                     
-                except Exception as e:
-                    logger.error(f"Error testing {pair_format}: {str(e)}")
-                    results_summary[coin]['failed'] += 1
-                
-                # Add small delay to avoid rate limiting
-                time.sleep(0.5)
-    
-    # Log final summary
-    logger.info("\n=== Final Test Summary ===")
-    for coin, results in results_summary.items():
+                    elif endpoint_name == 'trades':
+                        if isinstance(data, list) and len(data) > 0:
+                            results['success'] += 1
+                            results['details'].append(f"{endpoint_name}: Active - Has recent trades")
+                            logger.info(f"Latest trade: {data[0]}")
+                        else:
+                            results['failed'] += 1
+                            results['details'].append(f"{endpoint_name}: Inactive - No trades")
+                    
+                    elif endpoint_name == 'ticker':
+                        if data.get('vol') is not None:
+                            results['success'] += 1
+                            results['details'].append(f"{endpoint_name}: Active - Has ticker data")
+                            logger.info(f"Ticker: {data}")
+                        else:
+                            results['failed'] += 1
+                            results['details'].append(f"{endpoint_name}: Inactive - No ticker data")
+                            
+                    elif endpoint_name == 'klines':
+                        if isinstance(data, list) and len(data) > 0:
+                            results['success'] += 1
+                            results['details'].append(f"{endpoint_name}: Active - Has kline data")
+                            logger.info(f"Latest kline: {data[0]}")
+                        else:
+                            results['failed'] += 1
+                            results['details'].append(f"{endpoint_name}: Inactive - No kline data")
+                else:
+                    error_msg = f"HTTP {response.status_code}: {response.text}"
+                    results['failed'] += 1
+                    results['details'].append(f"{endpoint_name}: Failed - {error_msg}")
+                    
+            except Exception as e:
+                error_msg = f"Error: {str(e)}"
+                results['failed'] += 1
+                results['details'].append(f"{endpoint_name}: Failed - {error_msg}")
+            
+            time.sleep(0.5)  # Rate limiting
+        
+        # Store and log results
+        overall_results[pair] = results
+        
         total = results['success'] + results['failed']
         success_rate = (results['success'] / total * 100) if total > 0 else 0
-        logger.info(f"{coin}-USDT Test Results:")
-        logger.info(f"  Success: {results['success']}")
-        logger.info(f"  Failed: {results['failed']}")
-        logger.info(f"  Success Rate: {success_rate:.2f}%\n")
+        logger.info(f"\nResults for {pair}:")
+        logger.info(f"Active Endpoints: {results['success']}")
+        logger.info(f"Inactive/Failed: {results['failed']}")
+        logger.info(f"Activity Rate: {success_rate:.2f}%")
+        logger.info("\nEndpoint Details:")
+        for detail in results['details']:
+            logger.info(f"  {detail}")
+    
+    # Log final summary
+    logger.info("\n\n=== Final Summary ===")
+    logger.info("=" * 50)
+    
+    for pair, results in overall_results.items():
+        total = results['success'] + results['failed']
+        success_rate = (results['success'] / total * 100) if total > 0 else 0
+        logger.info(f"\n{pair}:")
+        logger.info(f"Active Endpoints: {results['success']}")
+        logger.info(f"Inactive/Failed: {results['failed']}")
+        logger.info(f"Activity Rate: {success_rate:.2f}%")
+        
+        active_endpoints = [d.split(':')[0] for d in results['details'] if 'Active' in d]
+        if active_endpoints:
+            logger.info(f"Active Markets: {', '.join(active_endpoints)}")
 
 if __name__ == "__main__":
     # Load environment variables
@@ -180,6 +187,6 @@ if __name__ == "__main__":
     logger = setup_logging()
     
     # Run tests
-    test_pair_formats(BASE_URL, API_KEY, API_SECRET, logger)
+    test_token_pairs(BASE_URL, API_KEY, API_SECRET, logger)
     
     logger.info("Testing completed. Log file has been saved.") 
