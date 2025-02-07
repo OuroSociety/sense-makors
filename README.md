@@ -1,16 +1,31 @@
-# ourOS Market Maker
+# Sense Maker
 
-A professional-grade market making system designed for the FameX exchange, specializing in SZAR, cUSD, and KAS liquidity management.
+A next-generation market making system that integrates AI agent knowledge to enhance market understanding and liquidity provision. Built for the Kaspa exchanges initially, specializing in SZAR, cUSD, and KAS and eCash markets.
 
 ## Overview
 
-ourOS Market Maker is a high-performance automated market making system that helps maintain liquidity and tight spreads for digital assets on the FameX exchange. Built with Python, it features robust risk management, position tracking, and comprehensive testing.
+Sense Maker updates traditional market making by incorporating AI agent intelligence into its decision-making process. By creating a marketplace for AI agents to provide market insights, Sense Maker builds a more informed and efficient market making system.
+
+🔄 **Coming Soon**
+- AI Agent API endpoint for knowledge integration
+- Payment system for information providers
+- Trust scoring mechanism for AI agents
+- Enhanced market sentiment analysis
+- Real-time agent performance metrics
+
+## Key Features
+
+- **AI Agent Integration**: Receive and process market insights from multiple AI agents
+- **Knowledge Marketplace**: Pay for valuable market intelligence from verified AI sources
+- **Trust System**: Dynamic scoring of AI agents based on prediction accuracy
+- **Traditional Market Making**: Core functionality for maintaining tight spreads and liquidity
+- **Risk Management**: Enhanced by AI-driven market understanding
 
 ## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/ouros/market-maker.git
+git clone https://github.com/sense/market-maker.git
 cd market-maker
 
 # Create and activate virtual environment using uv
@@ -29,123 +44,70 @@ Create a `.env` file in the project root:
 ```env
 FAMEEX_API_KEY=your_api_key_here
 FAMEEX_API_SECRET=your_api_secret_here
+AI_AGENT_API_KEY=your_agent_api_key_here
 ```
 
-Key settings in `config.py`:
-```python
-SYMBOL = "KAS-USDT"  # Trading pair
-SPREAD_PERCENTAGE = 0.02  # 2% spread
-MIN_ORDER_SIZE = 100
-MAX_ORDER_SIZE = 1000
-```
+## AI Agent Integration
 
-## CLI Commands
+### Current Status (In Development)
+- API Endpoint: Coming Soon
+- Payment System: Under Development
+- Trust Scoring: Beta Testing
 
-### Testing FameEX API
+### For AI Agents
+Interested in providing market intelligence? Here's what's coming:
+- REST API for submitting market insights
+- Micropayment system for valuable information
+- Performance-based trust scoring
+- Real-time feedback on prediction accuracy
 
-```bash
-# Run one-time API test
-python main.py test
-
-# Run continuous API testing (Ctrl+C to stop)
-python main.py test --continuous
-```
-
-The test command will check:
-- Order book API
-- Account balance API
-- Market ticker API
-- Connection status
-- API response validity
-
-Example test output:
-```
-Testing FameEX API connection...
-
-Testing order book API...
-✓ Order book snapshot:
-Top bid: ['50000', '1.0']
-Top ask: ['50100', '1.0']
-
-Testing account balance API...
-✓ Account balances:
-KAS: 1000.0
-USDT: 50000.0
-
-Testing market ticker API...
-✓ Current KAS-USDT ticker:
-Last price: 50050
-24h volume: 1500000
-
-API Test Success Rate: 100.0%
-```
-
-### Running the Market Maker
-
-```bash
-# Run with default spread
-python main.py run
-
-# Run with custom spread (e.g., 3%)
-python main.py run --spread 0.03
-```
+### Trust Score System
+AI agents will be evaluated based on:
+- Historical accuracy of predictions
+- Consistency of information
+- Market impact of provided insights
+- Peer review scores
+- Time-weighted performance metrics
 
 ## Project Structure
 
 ```
-market-maker/
-├── trading/              # Core trading components
-│   ├── position_tracker.py  # Position management
-│   ├── risk_manager.py     # Risk controls
-│   └── wallet_manager.py   # Balance management
+sense-maker/
+├── ai_integration/         # AI agent integration components
+│   ├── agent_api.py       # API endpoint for agents
+│   ├── trust_score.py     # Agent reliability tracking
+│   └── payment.py         # Micropayment system
+├── trading/               # Core trading components
+│   ├── position_tracker.py
+│   ├── risk_manager.py
+│   └── wallet_manager.py
 ├── utils/
-│   ├── logger.py          # Logging configuration
-│   └── decimal_utils.py   # Decimal handling utilities
-├── tests/                # Test suite
-├── api_client.py         # FameX API client
-├── config.py            # Configuration settings
-├── main.py             # CLI entry point
-└── market_maker.py     # Market making logic
+└── market_maker.py
 ```
 
 ## Testing
 
 ```bash
-# Run all tests with coverage
-pytest --cov=trading --cov=utils --cov-report=term-missing
+# Run all tests
+pytest --cov=trading --cov=ai_integration
 
-# Run specific test categories
-pytest tests/test_smoke.py -v -k "risk_management"
-
-# Run API tests with continuous monitoring
-python main.py test --continuous
+# Test AI agent integration
+python main.py test-agents
 ```
-
-## Logging
-
-The system uses a rotating log system with files stored in the `logs/` directory:
-- `main.log`: Main application logs
-- `market_maker.log`: Market making activity
-- `risk_manager.log`: Risk management decisions
-- `position_tracker.log`: Position updates
-- `wallet_manager.log`: Balance changes
 
 ## Risk Management
 
-The risk management system provides:
-- Dynamic position sizing based on portfolio value
-- Adaptive spread calculation based on market volatility
-- Balance ratio targeting between assets
-- Maximum drawdown protection
-- Minimum spread enforcement
+Enhanced risk management featuring:
+- AI-driven market sentiment analysis
+- Multi-agent consensus for position sizing
+- Trust-weighted decision making
+- Traditional risk controls
 
-## Support
+## Support & Contributing
 
-For support:
-1. Check the documentation
-2. Review the test cases for usage examples
-3. Run the API tests to verify setup
-4. Open an issue in the GitHub repository
+- Documentation: [docs.sensemaker.io](https://docs.sensemaker.io)
+- For AI Agents: [agents.sensemaker.io](https://agents.sensemaker.io)
+- Issues: GitHub repository
 
 ## License
 
@@ -153,10 +115,10 @@ MIT License - see LICENSE file for details
 
 ## Disclaimer
 
-This software is for professional use only. Trading cryptocurrencies carries significant risk. Always test thoroughly in a sandbox environment first.
+This software is for professional use only. The AI agent integration system is under active development. Trading cryptocurrencies carries significant risk. Always test thoroughly in a sandbox environment first.
 
 ---
-Built with ❤️ by the ourOS team
+Built with 🧠 by the Sense Maker team
 
 
 
