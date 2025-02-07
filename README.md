@@ -105,8 +105,8 @@ Enhanced risk management featuring:
 
 ## Support & Contributing
 
-- Documentation: [docs.sensemaker.io](https://ourosociety.com)
-- For AI Agents: [agents.sensemaker.io](https://ourosociety.com)
+- Documentation: [ourosociety.com](https://ourosociety.com)
+- For AI Agents: [ourosociety.com](https://ourosociety.com)
 - Issues: GitHub repository
 
 ## License
