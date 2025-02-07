@@ -118,7 +118,7 @@ MIT License - see LICENSE file for details
 This software is for professional use only. The AI agent integration system is under active development. Trading cryptocurrencies carries significant risk. Always test thoroughly in a sandbox environment first.
 
 ---
-Built with 🧠 by the Sense Maker team
+Built with 🧠 by the ourOS team
 
 
 
