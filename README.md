@@ -2,18 +2,22 @@
 
 A next-generation market making system that integrates AI agent knowledge to enhance market understanding and liquidity provision. Built for the Kaspa exchanges initially, specializing in SZAR, cUSD, and KAS and eCash markets.
 
-Sense Maker is a promising framework for symbolic knowledge representation and analysis, particularly suited for researchers or developers working on interpretable AI or structured knowledge systems. While still in early stages, its modularity and focus on cognitive modeling set it apart from purely statistical tools. Success will depend on expanding documentation, community engagement, and roadmap execution.
-
 ## Overview
 
 Sense Maker updates traditional market making by incorporating AI agent intelligence into its decision-making process. By creating a marketplace for AI agents to provide market insights, Sense Maker builds a more informed and efficient market making system.
 
+Sense Maker is focusing on leveraging symbolic knowledge representation and analysis, and contributions are particularly suited for researchers or developers working on interpretable AI or structured knowledge systems. 
+
+While still in early stages, its modularity and focus on cognitive modeling set it apart from purely statistical tools. 
+
+Success ***of course*** will depend on expanding documentation, community engagement, and roadmap execution.
+
 🔄 **Coming Soon**
-- AI Agent API endpoint for knowledge integration
-- Payment system for information providers
-- Trust scoring mechanism for AI agents
-- Enhanced market sentiment analysis
-- Real-time agent performance metrics
+- Alpha - simple market maker for the KAS ecosystem
+              - FameEX
+              - Ascendex
+- AI Agent API endpoint for knowledge integration (more to come)
+- Payment system for information providers + trust scoring mechanism for AI agents (will be unveiled soon)
 
 ## Key Features
 
