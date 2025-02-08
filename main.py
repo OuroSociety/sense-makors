@@ -1,334 +1,34 @@
 import argparse
 from decimal import Decimal
 import sys
-import json
-import time
-from typing import Optional, Dict, Any
-from pathlib import Path
-import datetime
-from api_client import FameexClient
+from config.api_client import FameexClient
 from market_maker import MarketMaker
-from config import (
+from config.config import (
     API_KEY, API_SECRET, SYMBOL, 
     ORDER_BOOK_DEPTH, SPREAD_PERCENTAGE,
     MIN_ORDER_SIZE
 )
 from utils.logger import setup_logger
+from tests.test_famex import test_famex_connection, test_market_making
+from tests.utils.test_helpers import (
+    setup_test_loggers,
+    save_test_results,
+    test_api_endpoint,
+    generate_test_summary
+)
+from config.test_cli import run_api_tests  # Import run_api_tests from test_cli
+import logging
 
 # Setup main logger and test results logger
 logger = setup_logger("main")
 test_logger = setup_logger("test_results", log_to_console=False)
 
-def get_log_filename(base_name: str, symbol: str) -> str:
-    """Generate log filename with timestamp and symbol"""
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    symbol_clean = symbol.replace('-', '_').lower()
-    return f"{base_name}_{symbol_clean}_{timestamp}.log"
-
-def setup_test_loggers(symbol: str):
-    """Setup loggers with symbol-specific filenames"""
-    global logger, test_logger
-    
-    # Main logger
-    main_log_file = get_log_filename("main", symbol)
-    logger = setup_logger("main", log_file=main_log_file)
-    
-    # Test results logger
-    test_log_file = get_log_filename("test_results", symbol)
-    test_logger = setup_logger("test_results", log_file=test_log_file, log_to_console=False)
-    
-    return logger, test_logger
-
-def save_test_results(test_name: str, success: bool, response: Any, error: Optional[str] = None):
-    """Save detailed test results to log file"""
-    timestamp = datetime.datetime.now().isoformat()
-    result = {
-        "timestamp": timestamp,
-        "test": test_name,
-        "success": success,
-        "response": response,
-        "error": error
-    }
-    test_logger.info(json.dumps(result, indent=2))
-
-def test_api_endpoint(name: str, func, *args) -> bool:
-    """Generic API endpoint test function with detailed logging"""
-    try:
-        result = func(*args)
-        if result:
-            logger.info(f"✓ {name} API test successful")
-            save_test_results(name, True, result)
-            return True
-        logger.error(f"✗ {name} API test failed - empty response")
-        save_test_results(name, False, None, "Empty response")
-        return False
-    except Exception as e:
-        logger.error(f"✗ {name} API test failed: {str(e)}")
-        save_test_results(name, False, None, str(e))
-        return False
-
-def run_api_tests(client: FameexClient, symbol: str, full_test: bool = False) -> Dict[str, Dict[str, Any]]:
-    """Run comprehensive API tests with detailed market data logging"""
-    results = {}
-    
-    try:
-        # First verify the trading pair exists by checking order book
-        logger.info(f"\nVerifying trading pair {symbol}...")
-        order_book = client.get_order_book(symbol)
-        
-        if order_book and isinstance(order_book, dict):
-            data = order_book.get('data', {})
-            bids = data.get('bids', [])
-            asks = data.get('asks', [])
-            
-            if bids or asks:
-                logger.info(f"✓ Trading pair {symbol} is available")
-                if bids:
-                    logger.info(f"First bid: {bids[0]}")
-                if asks:
-                    logger.info(f"First ask: {asks[0]}")
-            else:
-                logger.error(f"Trading pair {symbol} not found!")
-                return {
-                    'pair_check': {
-                        'success': False,
-                        'error': f"Trading pair {symbol} not available",
-                        'response': order_book
-                    }
-                }
-        else:
-            logger.warning("Could not verify trading pairs - continuing anyway")
-
-        # Test order book
-        logger.info(f"\nTesting order book API for {symbol}...")
-        order_book = client.get_order_book(symbol, ORDER_BOOK_DEPTH)
-        if order_book and isinstance(order_book, dict):
-            data = order_book.get('data', {})
-            if not data:
-                logger.error("Order book response missing 'data' field")
-                logger.debug(f"Full response: {order_book}")
-                results['order_book'] = {
-                    'success': False,
-                    'response': order_book,
-                    'error': 'Missing data field'
-                }
-            else:
-                # Extract timestamp and format it
-                timestamp = order_book.get('timestamp')
-                if timestamp:
-                    dt = datetime.datetime.fromtimestamp(int(timestamp))
-                    logger.info(f"\nOrder Book Snapshot (as of {dt.isoformat()}):")
-                else:
-                    logger.info("\nOrder Book Snapshot:")
-                logger.info("------------------------")
-                
-                # Show top 5 bids
-                bids = data.get('bids', [])
-                logger.info("\nTop 5 Bids:")
-                logger.info("Price (SZAR)\tAmount (KAS)")
-                logger.info("------------------------")
-                for bid in bids[:5]:
-                    price, amount = bid
-                    logger.info(f"{price}\t\t{amount}")
-                    
-                # Show top 5 asks
-                asks = data.get('asks', [])
-                logger.info("\nTop 5 Asks:")
-                logger.info("Price (SZAR)\tAmount (KAS)")
-                logger.info("------------------------")
-                for ask in asks[:5]:
-                    price, amount = ask
-                    logger.info(f"{price}\t\t{amount}")
-                    
-                # Calculate and show spread
-                if bids and asks:
-                    best_bid = Decimal(bids[0][0])
-                    best_ask = Decimal(asks[0][0])
-                    spread = best_ask - best_bid
-                    spread_percentage = (spread / best_bid) * 100
-                    logger.info(f"\nCurrent Spread: {spread} SZAR ({spread_percentage:.2f}%)")
-                    
-                # Show total depth
-                total_bid_volume = sum(Decimal(bid[1]) for bid in bids)
-                total_ask_volume = sum(Decimal(ask[1]) for ask in asks)
-                logger.info("\nOrder Book Depth:")
-                logger.info(f"Total Bid Volume: {total_bid_volume:.8f} KAS")
-                logger.info(f"Total Ask Volume: {total_ask_volume:.8f} KAS")
-                
-                results['order_book'] = {
-                    'success': True,
-                    'response': order_book,
-                    'error': None
-                }
-        else:
-            logger.error("Failed to fetch order book - invalid response format")
-            results['order_book'] = {
-                'success': False,
-                'response': order_book,
-                'error': 'Invalid response format'
-            }
-
-        # Test market ticker
-        logger.info(f"\nTesting market ticker API for {symbol}...")
-        ticker = client.get_ticker(symbol)
-        if ticker and isinstance(ticker, (dict, list)):
-            logger.info("\nMarket Summary:")
-            logger.info("------------------------")
-            if isinstance(ticker, list):
-                # Find our symbol in the list
-                ticker_data = next((t for t in ticker if t.get('trading_pairs') == symbol), None)
-                if ticker_data:
-                    logger.info(f"Last Price: {ticker_data.get('last_price')}")
-                    logger.info(f"24h Volume: {ticker_data.get('base_volume')} {symbol.split('-')[0]}")
-                    logger.info(f"Quote Volume: {ticker_data.get('quote_volume')} {symbol.split('-')[1]}")
-                    logger.info(f"24h High: {ticker_data.get('highest_price_24h')}")
-                    logger.info(f"24h Low: {ticker_data.get('lowest_price_24h')}")
-                    logger.info(f"Bid/Ask Spread:")
-                    logger.info(f"  Best Bid: {ticker_data.get('highest_bid')}")
-                    logger.info(f"  Best Ask: {ticker_data.get('lowest_ask')}")
-                    
-                    # Calculate price change
-                    price_change = ticker_data.get('price_change_percent_24h')
-                    if price_change:
-                        direction = "↑" if float(price_change) > 0 else "↓"
-                        logger.info(f"24h Change: {direction} {price_change}%")
-            
-            results['ticker'] = {
-                'success': True,
-                'response': ticker,
-                'error': None
-            }
-        else:
-            logger.error("Failed to fetch ticker - invalid response format")
-            results['ticker'] = {
-                'success': False,
-                'response': ticker,
-                'error': 'Invalid response format'
-            }
-
-        # Only run authenticated tests if requested
-        if full_test:
-            # Test account balance
-            logger.info("\nTesting account balance API...")
-            try:
-                balances = client.get_account_balance()
-                if balances and isinstance(balances, dict):
-                    logger.info("Account balances:")
-                    # Look specifically for cUSD and SZAR balances
-                    for asset in ['cUSD', 'SZAR']:
-                        balance = balances.get(asset, 'Not available')
-                        logger.info(f"{asset}: {balance}")
-                    results['balance'] = {
-                        'success': True,
-                        'response': balances,
-                        'error': None
-                    }
-                else:
-                    logger.error("Failed to fetch account balance - invalid response format")
-                    results['balance'] = {
-                        'success': False,
-                        'response': balances,
-                        'error': 'Invalid response format'
-                    }
-            except Exception as e:
-                logger.error(f"Balance API error: {str(e)}")
-                results['balance'] = {
-                    'success': False,
-                    'response': None,
-                    'error': str(e)
-                }
-
-    except Exception as e:
-        logger.error(f"API test error: {str(e)}")
-        results['error'] = {
-            'success': False,
-            'error': str(e),
-            'response': None
-        }
-        
-    return results
-
-def generate_test_summary(results: Dict[str, Dict[str, Any]]) -> str:
-    """Generate a detailed test summary"""
-    summary = [
-        "\n=== FameEX API Test Summary ===\n",
-        f"Time: {datetime.datetime.now().isoformat()}",
-        f"Symbol: {SYMBOL}\n"
-    ]
-    
-    total_tests = len(results)
-    successful_tests = sum(1 for r in results.values() if r['success'])
-    
-    summary.append(f"Overall Success Rate: {(successful_tests/total_tests)*100:.1f}%")
-    summary.append(f"Tests Passed: {successful_tests}/{total_tests}\n")
-    
-    summary.append("Detailed Results:")
-    for endpoint, result in results.items():
-        status = "✓ PASS" if result['success'] else "✗ FAIL"
-        summary.append(f"\n{endpoint.upper()}:")
-        summary.append(f"Status: {status}")
-        if not result['success'] and result['error']:
-            summary.append(f"Error: {result['error']}")
-            
-    return "\n".join(summary)
-
-def test_famex_connection(client: FameexClient, continuous: bool = False, symbol: str = SYMBOL, full_test: bool = False) -> bool:
-    """
-    Test connection to FameEX API
-    Args:
-        client: FameexClient instance
-        continuous: If True, run tests continuously until interrupted
-        symbol: Trading pair to test
-        full_test: If True, run full API test suite including authenticated endpoints
-    Returns:
-        bool: True if all critical tests pass
-    """
-    try:
-        if continuous:
-            logger.info("Starting continuous API testing (Press Ctrl+C to stop)...")
-            while True:
-                results = run_api_tests(client, symbol, full_test)
-                summary = generate_test_summary(results)
-                logger.info(summary)
-                test_logger.info(summary)
-                logger.info("\nWaiting 5 seconds before next test cycle...")
-                time.sleep(5)
-        else:
-            results = run_api_tests(client, symbol, full_test)
-            summary = generate_test_summary(results)
-            logger.info(summary)
-            test_logger.info(summary)
-            
-        # Consider test successful if order book and balance APIs work
-        return results.get('order_book', {}).get('success', False) and \
-               results.get('balance', {}).get('success', False)
-        
-    except KeyboardInterrupt:
-        logger.info("\nAPI testing stopped by user")
-        return True
-    except Exception as e:
-        logger.error(f"Error during API testing: {str(e)}")
-        return False
-
-def run_market_maker(client: FameexClient, spread: Optional[Decimal] = None) -> None:
-    """Run the market maker with optional custom spread"""
-    try:
-        market_maker = MarketMaker(client)
-        if spread is not None:
-            logger.info(f"Using custom spread: {spread}")
-            market_maker.risk_manager.set_limits(
-                SYMBOL,
-                max_position=Decimal('1000'),
-                max_drawdown=Decimal('100'),
-                min_spread=spread,
-                target_ratio=Decimal('1.0')
-            )
-        market_maker.run()
-    except KeyboardInterrupt:
-        logger.info("Shutting down market maker...")
-    except Exception as e:
-        logger.error(f"Fatal error in market maker: {str(e)}")
-        sys.exit(1)
+def run_market_maker(client: FameexClient, spread: Decimal = None):
+    """Run the market maker"""
+    market_maker = MarketMaker(client)
+    if spread is not None:
+        market_maker.spread = spread
+    market_maker.run()
 
 def print_kas_pairs(summary_data: dict) -> None:
     """Print all trading pairs related to KAS"""
@@ -358,8 +58,8 @@ def print_kas_pairs(summary_data: dict) -> None:
             f"{pair['price_change_percent_24h']:<10}"
         )
 
-def get_market_summary(client: FameexClient, filter_kas: bool = True) -> None:
-    """Get and display market summary, optionally filtering for KAS pairs"""
+def get_market_summary(client: FameexClient, filter_kas: bool = True):
+    """Get market summary"""
     try:
         summary = client._request('GET', "/v2/public/summary")
         if summary and isinstance(summary, dict) and 'data' in summary:
@@ -376,128 +76,19 @@ def get_market_summary(client: FameexClient, filter_kas: bool = True) -> None:
     except Exception as e:
         logger.error(f"Error fetching market summary: {str(e)}")
 
-def test_market_making(client: FameexClient, symbol: str) -> Dict[str, Dict[str, Any]]:
-    """Test market making functionality"""
-    results = {}
-    logger.info(f"\n=== Testing Market Making for {symbol} ===")
-    
-    try:
-        # 1. Test order validation (without execution)
-        logger.info("\nTesting order validation...")
-        test_bid = {
-            "side": "BUY",
-            "type": "LIMIT",
-            "volume": "100",
-            "price": "1.0"
-        }
-        
-        test_ask = {
-            "side": "SELL",
-            "type": "LIMIT",
-            "volume": "100",
-            "price": "1.1"
-        }
-        
-        # Test bid order
-        bid_test = client.test_order(
-            symbol=symbol,
-            side=test_bid["side"],
-            order_type=test_bid["type"],
-            volume=test_bid["volume"],
-            price=test_bid["price"]
-        )
-        
-        if bid_test is not None:
-            logger.info("✓ Bid order validation successful")
-            results['bid_test'] = {
-                'success': True,
-                'response': bid_test
-            }
-        else:
-            logger.error("✗ Bid order validation failed")
-            results['bid_test'] = {
-                'success': False,
-                'error': 'Order validation failed'
-            }
-            
-        # Test ask order
-        ask_test = client.test_order(
-            symbol=symbol,
-            side=test_ask["side"],
-            order_type=test_ask["type"],
-            volume=test_ask["volume"],
-            price=test_ask["price"]
-        )
-        
-        if ask_test is not None:
-            logger.info("✓ Ask order validation successful")
-            results['ask_test'] = {
-                'success': True,
-                'response': ask_test
-            }
-        else:
-            logger.error("✗ Ask order validation failed")
-            results['ask_test'] = {
-                'success': False,
-                'error': 'Order validation failed'
-            }
-            
-        # 2. Check current open orders
-        logger.info("\nChecking open orders...")
-        open_orders = client.get_open_orders(symbol)
-        if isinstance(open_orders, list):
-            logger.info(f"Found {len(open_orders)} open orders")
-            for order in open_orders[:5]:  # Show first 5 orders
-                logger.info(f"Order: {order.get('orderId')} - {order.get('side')} "
-                          f"{order.get('origQty')} @ {order.get('price')}")
-            results['open_orders'] = {
-                'success': True,
-                'response': open_orders
-            }
-        else:
-            logger.error("✗ Failed to fetch open orders")
-            results['open_orders'] = {
-                'success': False,
-                'error': 'Failed to fetch open orders'
-            }
-            
-        # 3. Check trading history
-        logger.info("\nChecking trading history...")
-        trades = client.get_my_trades(symbol)
-        if isinstance(trades, list):
-            logger.info(f"Found {len(trades)} trades")
-            for trade in trades[:5]:  # Show last 5 trades
-                logger.info(f"Trade: {trade.get('id')} - {trade.get('side')} "
-                          f"{trade.get('qty')} @ {trade.get('price')}")
-            results['trades'] = {
-                'success': True,
-                'response': trades
-            }
-        else:
-            logger.error("✗ Failed to fetch trading history")
-            results['trades'] = {
-                'success': False,
-                'error': 'Failed to fetch trading history'
-            }
-            
-    except Exception as e:
-        logger.error(f"Error during market making test: {str(e)}")
-        results['error'] = {
-            'success': False,
-            'error': str(e)
-        }
-        
-    # Generate summary
-    success_count = sum(1 for r in results.values() if r.get('success', False))
-    total_count = len(results)
-    
-    logger.info("\n=== Market Making Test Summary ===")
-    logger.info(f"Success Rate: {(success_count/total_count)*100:.1f}%")
-    logger.info(f"Tests Passed: {success_count}/{total_count}")
-    
-    return results
+def init_loggers(symbol: str = None):
+    """Initialize loggers"""
+    if symbol:
+        return setup_test_loggers(symbol)
+    else:
+        logger = setup_logger("main")
+        test_logger = setup_logger("test_results", log_to_console=False)
+        return logger, test_logger
 
 def main():
+    # Initialize default loggers
+    logger, test_logger = init_loggers()
+    
     parser = argparse.ArgumentParser(description='ourOS Market Maker CLI')
     
     # Add subparsers for different commands
@@ -513,7 +104,7 @@ def main():
     test_parser.add_argument(
         '--symbol',
         type=str,
-        default='SZAR-USDT',  # Changed back to SZAR-USDT
+        default='SZAR-USDT',
         help='Trading pair to test (default: SZAR-USDT)'
     )
     test_parser.add_argument(
@@ -565,9 +156,8 @@ def main():
     
     # Handle commands
     if args.command == 'test-famex':
-        # Setup loggers with symbol-specific filenames
-        setup_test_loggers(args.symbol)
-        
+        # Reinitialize loggers with symbol
+        logger, test_logger = init_loggers(args.symbol)
         logger.info(f"Testing FameEX market data for {args.symbol}...")
         success = test_famex_connection(
             client, 
@@ -586,8 +176,11 @@ def main():
         get_market_summary(client, filter_kas=not args.all)
         
     elif args.command == 'test-mm':
+        # Reinitialize loggers with symbol and enable debug
+        logger, test_logger = init_loggers(args.symbol)
+        logger.setLevel(logging.DEBUG)  # Enable debug logging
         logger.info(f"Testing market making functionality for {args.symbol}...")
-        results = test_market_making(client, args.symbol)
+        results = test_market_making(logger, test_logger, client, args.symbol)
         success = any(r.get('success', False) for r in results.values())
         sys.exit(0 if success else 1)
         

@@ -2,8 +2,8 @@ import requests
 import time
 import hmac
 import hashlib
-from typing import Dict, Any, Optional
-from config import API_BASE_URL
+from typing import Dict, Any, Optional, Union
+from config.config import API_BASE_URL
 import logging
 
 logger = logging.getLogger(__name__)
@@ -52,12 +52,25 @@ class FameexClient:
             response.raise_for_status()
             data = response.json()
             
+            # Log the response for debugging
+            logger.debug(f"API Response: {data}")
+            
+            # Check for API error codes
+            if isinstance(data, dict) and 'code' in data and data['code'] != 200:
+                logger.error(f"API Error: {data.get('msg', 'Unknown error')}")
+                return None
+            
             # Handle both direct data and data within 'data' field
             if isinstance(data, dict) and 'data' in data:
                 return data['data']
             return data
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             logger.error(f"API request error: {str(e)}")
+            if hasattr(e.response, 'text'):
+                logger.error(f"Response text: {e.response.text}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
             return None
             
     def _format_symbol(self, symbol: str) -> str:
@@ -110,15 +123,32 @@ class FameexClient:
         }
         return self._request('GET', endpoint, params)
         
-    def place_order(self, symbol: str, side: str, order_type: str,
+    def place_order(self, symbol: str, side: Union[str, int], order_type: Union[str, int],
                     volume: str, price: str = None) -> Dict[str, Any]:
-        """Place a new order"""
+        """Place a new order
+        
+        Args:
+            symbol: Trading pair symbol
+            side: 1 for BUY, 2 for SELL (or "BUY"/"SELL" strings)
+            order_type: 1 for LIMIT, 2 for MARKET (or "LIMIT"/"MARKET" strings)
+            volume: Order volume
+            price: Order price (required for limit orders)
+        """
         endpoint = "/sapi/v1/order"
+        
+        # Convert side to integer if it's a string
+        if isinstance(side, str):
+            side = 1 if side.upper() == "BUY" else 2
+        
+        # Convert order_type to integer if it's a string    
+        if isinstance(order_type, str):
+            order_type = 1 if order_type.upper() == "LIMIT" else 2
+        
         params = {
             "symbol": self._format_symbol(symbol),
             "volume": volume,
-            "side": side.upper(),
-            "type": order_type.upper()
+            "side": side,  # Use integer directly
+            "type": order_type  # Use integer directly
         }
         if price:
             params["price"] = price
@@ -157,17 +187,26 @@ class FameexClient:
         }
         return self._request('GET', endpoint, params, signed=True)
         
-    def test_order(self, symbol: str, side: str, order_type: str,
+    def test_order(self, symbol: str, side: Union[str, int], order_type: Union[str, int],
                    volume: str, price: str = None) -> Dict[str, Any]:
         """Test a new order without sending to matching engine"""
         endpoint = "/sapi/v1/order/test"
+        
+        # Convert side to integer if it's a string
+        if isinstance(side, str):
+            side = 1 if side.upper() == "BUY" else 2
+        
+        # Convert order_type to integer if it's a string    
+        if isinstance(order_type, str):
+            order_type = 1 if order_type.upper() == "LIMIT" else 2
+        
         params = {
-            "symbol": self._format_symbol(symbol).upper(),
+            "symbol": self._format_symbol(symbol),
             "volume": volume,
-            "side": side.upper(),
-            "type": order_type.upper()
+            "side": side,
+            "type": order_type
         }
         if price:
             params["price"] = price
-            
+        
         return self._request('POST', endpoint, params, signed=True) 

@@ -11,7 +11,7 @@ API_KEY = os.getenv("FAMEEX_API_KEY")
 API_SECRET = os.getenv("FAMEEX_API_SECRET")
 
 # Trading Configuration
-SYMBOL = "SZARUSDT"  # Changed to uppercase as per API docs
+SYMBOL = "SZARUSDT"  # Not "SZAR-USDT" - FameEX doesn't use hyphens
 ORDER_BOOK_DEPTH = 5
 SPREAD_PERCENTAGE = Decimal("0.02")  # 2% spread
 MIN_ORDER_SIZE = Decimal("100")  # Minimum order size

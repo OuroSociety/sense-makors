@@ -1,8 +1,8 @@
 from typing import Dict, List, Optional
 import time
 from decimal import Decimal
-from api_client import FameexClient
-from config import (
+from config.api_client import FameexClient
+from config.config import (
     SYMBOL, ORDER_BOOK_DEPTH, SPREAD_PERCENTAGE,
     MIN_ORDER_SIZE, MAX_ORDER_SIZE
 )
