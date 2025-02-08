@@ -6,11 +6,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ExchangeClient(ABC):
-    def __init__(self, api_key: str, api_secret: str, base_url: str):
+    def __init__(self, api_key: str, api_secret: str, base_url: str, test_mode: bool = False):
         self.api_key = api_key
         self.api_secret = api_secret
         self.base_url = base_url
         self.session = requests.Session()
+        self.test_mode = test_mode
 
     @abstractmethod
     def _generate_signature(self, *args, **kwargs) -> str:

@@ -86,12 +86,11 @@ def init_loggers(symbol: str = None):
         test_logger = setup_logger("test_results", log_to_console=False)
         return logger, test_logger
 
-def create_exchange_client(exchange_type: str, api_key: str, api_secret: str) -> ExchangeClient:
+def create_exchange_client(exchange_type: str, api_key: str, api_secret: str, test_mode: bool = False) -> ExchangeClient:
     """Factory function to create exchange clients"""
     if exchange_type.lower() == 'fameex':
         from config.api_client import FameexClient
-        return FameexClient(api_key, api_secret)
-    # Add more exchange types here as needed
+        return FameexClient(api_key, api_secret, test_mode=test_mode)
     else:
         raise ValueError(f"Unsupported exchange type: {exchange_type}")
 
@@ -163,7 +162,9 @@ def main():
         sys.exit(1)
         
     try:
-        client = create_exchange_client('fameex', API_KEY, API_SECRET)
+        # Enable test mode for test-mm command
+        test_mode = args.command == 'test-mm'
+        client = create_exchange_client('fameex', API_KEY, API_SECRET, test_mode=test_mode)
     except ValueError as e:
         logger.error(f"Error creating exchange client: {e}")
         sys.exit(1)
@@ -193,6 +194,7 @@ def main():
         # Reinitialize loggers with symbol and enable debug
         logger, test_logger = init_loggers(args.symbol)
         logger.setLevel(logging.DEBUG)  # Enable debug logging
+        logging.getLogger('urllib3').setLevel(logging.DEBUG)  # Enable HTTP request logging
         logger.info(f"Testing market making functionality for {args.symbol}...")
         results = test_market_making(logger, test_logger, client, args.symbol)
         success = any(r.get('success', False) for r in results.values())

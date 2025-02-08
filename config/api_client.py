@@ -10,49 +10,81 @@ import logging
 logger = logging.getLogger(__name__)
 
 class FameexClient(ExchangeClient):
-    def __init__(self, api_key: str, api_secret: str):
-        super().__init__(api_key, api_secret, API_BASE_URL)
+    def __init__(self, api_key: str, api_secret: str, test_mode: bool = False):
+        super().__init__(api_key, api_secret, API_BASE_URL, test_mode)
         
     def _generate_signature(self, timestamp: str, method: str, 
                           endpoint: str, params: Dict = None) -> str:
         """Generate signature for API request"""
-        params_str = '&'.join([f"{k}={v}" for k, v in sorted(params.items())]) if params else ''
-        message = f"{timestamp}{method}{endpoint}{params_str}"
+        # Sort parameters alphabetically and create parameter string
+        params_list = []
+        if params:
+            for key in sorted(params.keys()):
+                params_list.append(f"{key}={params[key]}")
+        params_str = '&'.join(params_list)
+        
+        # Create message string
+        message = f"{method.upper()}{endpoint}{timestamp}{params_str}"
+        
+        # Generate HMAC SHA256 signature
         signature = hmac.new(
             self.api_secret.encode('utf-8'),
             message.encode('utf-8'),
             hashlib.sha256
         ).hexdigest()
+        
+        logger.debug(f"Signature message: {message}")
+        logger.debug(f"Generated signature: {signature}")
+        
         return signature
         
     def _request(self, method: str, endpoint: str, 
                  params: Dict = None, signed: bool = False) -> Optional[Dict]:
         """Make API request with optional signing"""
+        # Only mock order-related endpoints in test mode
+        if self.test_mode and endpoint in [
+            "/sapi/v1/order",
+            "/sapi/v1/order/test",
+            "/sapi/v1/cancel"
+        ]:
+            return self._get_mock_response(endpoint, params)
+            
         url = f"{self.base_url}{endpoint}"
+        
+        # Generate timestamp and signature first for all authenticated requests
+        timestamp = str(int(time.time() * 1000))  # Use milliseconds timestamp
+        
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CH-APIKEY': self.api_key,
+            'X-CH-TS': timestamp
         }
         
         if signed:
-            timestamp = str(int(time.time()))
-            signature = self._generate_signature(timestamp, method, endpoint, params)
-            headers.update({
-                'X-CH-APIKEY': self.api_key,
-                'X-CH-SIGN': signature, 
-                'X-CH-TS': timestamp
-            })
+            # Include timestamp in params for signature
+            if params is None:
+                params = {}
+            params['timestamp'] = timestamp
             
+            # Generate signature with all parameters
+            signature = self._generate_signature(timestamp, method, endpoint, params)
+            headers['X-CH-SIGN'] = signature
+        
         try:
             if method == 'GET':
                 response = self.session.get(url, params=params, headers=headers)
             else:
                 response = self.session.post(url, json=params, headers=headers)
                 
+            # Log request details for debugging
+            logger.debug(f"Request URL: {url}")
+            logger.debug(f"Request Headers: {headers}")
+            logger.debug(f"Request Params: {params}")
+            logger.debug(f"Response Status: {response.status_code}")
+            logger.debug(f"Response Text: {response.text}")
+            
             response.raise_for_status()
             data = response.json()
-            
-            # Log the response for debugging
-            logger.debug(f"API Response: {data}")
             
             # Check for API error codes
             if isinstance(data, dict) and 'code' in data and data['code'] != 200:
@@ -72,6 +104,31 @@ class FameexClient(ExchangeClient):
             logger.error(f"Unexpected error: {str(e)}")
             return None
             
+    def _get_mock_response(self, endpoint: str, params: Dict = None) -> Dict:
+        """Generate mock responses for testing - only for order operations"""
+        if endpoint == "/sapi/v1/order" or endpoint == "/sapi/v1/order/test":
+            return {
+                'code': 200,
+                'data': {
+                    'orderId': 'test_' + str(int(time.time())),
+                    'symbol': params.get('symbol'),
+                    'side': params.get('side'),
+                    'type': params.get('type'),
+                    'price': params.get('price'),
+                    'volume': params.get('volume'),
+                    'status': 'NEW'
+                }
+            }
+        elif endpoint == "/sapi/v1/cancel":
+            return {
+                'code': 200,
+                'data': {
+                    'orderId': params.get('orderId'),
+                    'status': 'CANCELED'
+                }
+            }
+        return {'code': 200, 'data': {}}
+
     def _format_symbol(self, symbol: str) -> str:
         """Format symbol to match exchange requirements"""
         return symbol.lower().replace('-', '')
@@ -168,7 +225,7 @@ class FameexClient(ExchangeClient):
         endpoint = "/sapi/v1/openOrders"
         params = {
             "symbol": self._format_symbol(symbol),
-            "limit": limit
+            "limit": str(limit)  # Convert to string for consistent signature
         }
         return self._request('GET', endpoint, params, signed=True)
         
@@ -182,7 +239,7 @@ class FameexClient(ExchangeClient):
         endpoint = "/sapi/v1/myTrades"
         params = {
             "symbol": self._format_symbol(symbol),
-            "limit": limit
+            "limit": str(limit)  # Convert to string for consistent signature
         }
         return self._request('GET', endpoint, params, signed=True)
         
