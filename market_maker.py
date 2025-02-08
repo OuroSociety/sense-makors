@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 import time
 from decimal import Decimal
-from config.api_client import FameexClient
+from config.base_client import ExchangeClient
 from config.config import (
     SYMBOL, ORDER_BOOK_DEPTH, SPREAD_PERCENTAGE,
     MIN_ORDER_SIZE, MAX_ORDER_SIZE
@@ -15,7 +15,7 @@ import statistics
 logger = setup_logger("market_maker")
 
 class MarketMaker:
-    def __init__(self, client: FameexClient):
+    def __init__(self, client: ExchangeClient):
         self.client = client
         self.active_orders: Dict[str, Dict] = {}
         self.position_tracker = PositionTracker()

@@ -3,16 +3,15 @@ import time
 import hmac
 import hashlib
 from typing import Dict, Any, Optional, Union
+from config.base_client import ExchangeClient
 from config.config import API_BASE_URL
 import logging
 
 logger = logging.getLogger(__name__)
 
-class FameexClient:
+class FameexClient(ExchangeClient):
     def __init__(self, api_key: str, api_secret: str):
-        self.api_key = api_key
-        self.api_secret = api_secret
-        self.session = requests.Session()
+        super().__init__(api_key, api_secret, API_BASE_URL)
         
     def _generate_signature(self, timestamp: str, method: str, 
                           endpoint: str, params: Dict = None) -> str:
@@ -29,7 +28,7 @@ class FameexClient:
     def _request(self, method: str, endpoint: str, 
                  params: Dict = None, signed: bool = False) -> Optional[Dict]:
         """Make API request with optional signing"""
-        url = f"{API_BASE_URL}{endpoint}"
+        url = f"{self.base_url}{endpoint}"
         headers = {
             'Content-Type': 'application/json'
         }

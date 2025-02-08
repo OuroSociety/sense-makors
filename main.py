@@ -18,6 +18,7 @@ from tests.utils.test_helpers import (
 )
 from config.test_cli import run_api_tests  # Import run_api_tests from test_cli
 import logging
+from config.base_client import ExchangeClient
 
 # Setup main logger and test results logger
 logger = setup_logger("main")
@@ -84,6 +85,15 @@ def init_loggers(symbol: str = None):
         logger = setup_logger("main")
         test_logger = setup_logger("test_results", log_to_console=False)
         return logger, test_logger
+
+def create_exchange_client(exchange_type: str, api_key: str, api_secret: str) -> ExchangeClient:
+    """Factory function to create exchange clients"""
+    if exchange_type.lower() == 'fameex':
+        from config.api_client import FameexClient
+        return FameexClient(api_key, api_secret)
+    # Add more exchange types here as needed
+    else:
+        raise ValueError(f"Unsupported exchange type: {exchange_type}")
 
 def main():
     # Initialize default loggers
@@ -152,7 +162,11 @@ def main():
         logger.error("API credentials not found. Please check your .env file.")
         sys.exit(1)
         
-    client = FameexClient(API_KEY, API_SECRET)
+    try:
+        client = create_exchange_client('fameex', API_KEY, API_SECRET)
+    except ValueError as e:
+        logger.error(f"Error creating exchange client: {e}")
+        sys.exit(1)
     
     # Handle commands
     if args.command == 'test-famex':
