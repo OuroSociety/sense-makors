@@ -1,6 +1,10 @@
 # Sense Maker
 
-A next-generation market making system that integrates AI agent knowledge to enhance market understanding and liquidity provision. Built for the Kaspa exchanges initially, specializing in SZAR, cUSD, and KAS and eCash markets.
+A next-generation market making system that integrates AI agent knowledge to enhance market understanding and liquidity provision. 
+
+Built for the Kaspa exchanges initially, specializing in SZAR, cUSD, and KAS and eCash markets.
+
+Integrating in with agents and position tracking at ourOS to make markets make sense, and reward ourOS owners and contributors, with rewards for sense making and discovery.
 
 ## Overview
 
