@@ -78,10 +78,25 @@ class RiskManager:
 
     def calculate_position_imbalance(self, symbol: str) -> Decimal:
         """Calculate how far current position is from target ratio"""
-        base_asset, quote_asset = symbol.split('-')
-        current_position = self.position_tracker.get_position(symbol)
-        target_ratio = self.target_balance_ratio[symbol]
+        # Handle both formats: SZARUSDT and SZAR-USDT
+        if '-' in symbol:
+            base_asset, quote_asset = symbol.split('-')
+        else:
+            # Extract base and quote assets from combined symbol
+            quote_asset = symbol[-4:]  # Get last 4 chars for quote asset
+            base_asset = symbol[:-4]   # Get remaining chars for base asset
+            
+            # Handle 3-char quote assets like BTC
+            if quote_asset.startswith('U'):
+                quote_asset = symbol[-4:]  # USDT, USDC
+                base_asset = symbol[:-4]
+            else:
+                quote_asset = symbol[-3:]  # BTC, ETH
+                base_asset = symbol[:-3]
         
+        self.logger.debug(f"Checking balance ratio for {base_asset}/{quote_asset}")
+        
+        # Get current balances
         base_balance = self.wallet_manager.get_available_balance(base_asset)
         quote_balance = self.wallet_manager.get_available_balance(quote_asset)
         
@@ -89,7 +104,11 @@ class RiskManager:
             return Decimal('1.0')
             
         current_ratio = base_balance / quote_balance
+        target_ratio = self.target_balance_ratio.get(symbol, Decimal('1.0'))
         imbalance = abs(current_ratio - target_ratio) / target_ratio
+        
+        self.logger.debug(f"Balance ratio - Current: {current_ratio:.4f}, Target: {target_ratio:.4f}, Imbalance: {imbalance:.4f}")
+        
         return Decimal('1.0') + imbalance
 
     def _improves_balance_ratio(self, symbol: str, amount: Decimal, price: Decimal, is_buy: bool) -> bool:
@@ -162,10 +181,30 @@ class RiskManager:
                 self.logger.warning(f"Order would exceed dynamic position limit of {dynamic_limit}")
                 return False
             
-            # Check balance ratio improvement
-            if not self._improves_balance_ratio(symbol, amount, price, is_buy):
-                self.logger.warning("Order would worsen balance ratio")
-                return False
+            # Extract assets from symbol
+            if '-' in symbol:
+                base_asset, quote_asset = symbol.split('-')
+            else:
+                quote_asset = symbol[-4:]
+                base_asset = symbol[:-4]
+            
+            # Check if we have enough balance
+            if is_buy:
+                required_quote = amount * price
+                if self.wallet_manager.get_available_balance(quote_asset) < required_quote:
+                    self.logger.warning(f"Insufficient {quote_asset} balance for buy order")
+                    return False
+            else:
+                if self.wallet_manager.get_available_balance(base_asset) < amount:
+                    self.logger.warning(f"Insufficient {base_asset} balance for sell order")
+                    return False
+                
+            # Check if order improves balance ratio only if we have significant imbalance
+            current_ratio = self.calculate_position_imbalance(symbol)
+            if current_ratio > Decimal('1.2'):  # Only check if imbalance is >20%
+                if not self._improves_balance_ratio(symbol, amount, price, is_buy):
+                    self.logger.warning("Order would worsen balance ratio")
+                    return False
             
             return True
         

@@ -2,7 +2,7 @@
 .venv/
 venv/
 ENV/
-
+ecash/
 # Environment variables
 .env
 

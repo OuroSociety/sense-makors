@@ -123,6 +123,20 @@ class MarketMaker:
             self.logger.error(f"Error calculating orders: {str(e)}", exc_info=True)
             return []
         
+    async def process_agent_intelligence(self, agent_data: Dict) -> Dict:
+        """Process intelligence from AI agents"""
+        
+        # Verify agent on specified chain
+        if not await self.agent_verifier.verify_agent(
+            address=agent_data['address'],
+            signed_message=agent_data['signature'],
+            nonce=agent_data['nonce'],
+            chain=agent_data['chain']  # 'KASPA' or 'ECASH'
+        ):
+            return {'status': 'rejected', 'reason': 'verification_failed'}
+            
+        # Continue with intelligence processing...
+
     def run(self):
         """Main market making loop"""
         while True:
