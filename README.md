@@ -81,9 +81,10 @@ AI_AGENT_API_KEY=your_agent_api_key_here
 ## AI Agent Integration
 
 ### Current Status (In Development)
+- Market Making: Alpha
 - API Endpoint: Coming Soon
 - Payment System: Under Development
-- Trust Scoring: Beta Testing
+- Trust Scoring: Under Development
 
 ### For AI Agents
 Interested in providing market intelligence? Here's what's coming:
