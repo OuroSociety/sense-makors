@@ -1,6 +1,15 @@
 import argparse
 from decimal import Decimal
 import sys
+import time
+import logging
+from pathlib import Path
+
+# Add the project root to Python path
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Local imports
 from config.api_client import FameexClient
 from market_maker import MarketMaker
 from config.config import (
@@ -16,9 +25,9 @@ from tests.utils.test_helpers import (
     test_api_endpoint,
     generate_test_summary
 )
-from config.test_cli import run_api_tests  # Import run_api_tests from test_cli
-import logging
+from config.test_cli import run_api_tests
 from config.base_client import ExchangeClient
+from trading import PositionTracker, RiskManager, WalletManager  # Updated import
 
 # Setup main logger and test results logger
 logger = setup_logger("main")
@@ -94,67 +103,171 @@ def create_exchange_client(exchange_type: str, api_key: str, api_secret: str, te
     else:
         raise ValueError(f"Unsupported exchange type: {exchange_type}")
 
+def test_trading_system(client: ExchangeClient, symbol: str, duration: int = 300):
+    """Test the complete trading system including position tracking and risk management"""
+    logger = setup_logger("system_test", debug=True)  # Enable debug logging
+    logger.info(f"\n=== Starting Trading System Test for {symbol} ===")
+    logger.info(f"Test duration: {duration} seconds")
+    
+    # Initialize start_time at the beginning
+    start_time = time.time()
+    results = {
+        "orders_tested": 0,
+        "orders_accepted": 0,
+        "orders_rejected": 0,
+        "position_updates": 0,
+        "risk_checks": 0
+    }
+    
+    try:
+        # Initialize components
+        logger.info("Initializing trading components...")
+        position_tracker = PositionTracker()
+        wallet_manager = WalletManager()
+        
+        # Extract base and quote assets from symbol
+        if '-' in symbol:
+            base_asset, quote_asset = symbol.split('-')
+        else:
+            quote_asset = symbol[-4:]  # Assuming USDT
+            base_asset = symbol[:-4]   # Rest is base asset
+            
+        logger.info(f"Trading {base_asset}/{quote_asset}")
+        
+        # Initialize wallet with some test balances
+        wallet_manager.update_balance(quote_asset, Decimal('10000'))
+        wallet_manager.update_balance(base_asset, Decimal('10000'))
+        
+        risk_manager = RiskManager(position_tracker, wallet_manager)
+        
+        # Set risk limits
+        max_position = Decimal("1000")  # Maximum position size
+        max_order_size = Decimal("100")  # Maximum single order size
+        min_spread = Decimal("0.001")    # Minimum spread (0.1%)
+        
+        risk_manager.set_limits(
+            symbol=symbol,
+            max_position=max_position,
+            max_order_size=max_order_size,
+            min_spread=min_spread
+        )
+        
+        logger.info(f"Risk limits set:")
+        logger.info(f"- Max position: {max_position}")
+        logger.info(f"- Max order size: {max_order_size}")
+        logger.info(f"- Min spread: {min_spread * 100}%")
+        
+        test_orders = [
+            {"side": 1, "volume": "50", "price": "1.0", "desc": "Small buy"},
+            {"side": 2, "volume": "30", "price": "1.1", "desc": "Small sell"},
+            {"side": 1, "volume": "150", "price": "1.0", "desc": "Exceeds order size"},
+            {"side": 1, "volume": "90", "price": "1.0", "desc": "Near limit buy"},
+        ]
+        
+        cycle = 0
+        while time.time() - start_time < duration:
+            cycle += 1
+            logger.info(f"\n=== Testing Order Cycle {cycle} ===")
+            
+            # Test order placement with risk checks
+            for order in test_orders:
+                results["orders_tested"] += 1
+                order_size = Decimal(order["volume"])
+                order_price = Decimal(order["price"])
+                is_buy = order["side"] == 1
+                
+                logger.info(f"\nTesting {order['desc']}: {order_size} @ {order_price}")
+                
+                # Risk check
+                results["risk_checks"] += 1
+                if risk_manager.check_order(symbol, order_size, order_price, is_buy):
+                    logger.info(f"✓ Risk check passed")
+                    results["orders_accepted"] += 1
+                    
+                    # Update position
+                    position_tracker.update_position(
+                        symbol, 
+                        order_size, 
+                        order_price, 
+                        is_buy
+                    )
+                    results["position_updates"] += 1
+                    
+                    # Update wallet balances
+                    if is_buy:
+                        wallet_manager.update_balance(quote_asset, 
+                            wallet_manager.get_available_balance(quote_asset) - (order_size * order_price))
+                        wallet_manager.update_balance(base_asset,
+                            wallet_manager.get_available_balance(base_asset) + order_size)
+                    else:
+                        wallet_manager.update_balance(quote_asset,
+                            wallet_manager.get_available_balance(quote_asset) + (order_size * order_price))
+                        wallet_manager.update_balance(base_asset,
+                            wallet_manager.get_available_balance(base_asset) - order_size)
+                    
+                    current_position = position_tracker.get_position(symbol)
+                    logger.info(f"Position updated: {current_position}")
+                else:
+                    logger.warning(f"✗ Risk check failed - would exceed limits")
+                    results["orders_rejected"] += 1
+            
+            # Position and wallet status
+            current_position = position_tracker.get_position(symbol)
+            logger.info(f"\nPosition Status:")
+            logger.info(f"Current position: {current_position}")
+            logger.info(f"Position limit: {max_position}")
+            logger.info(f"Position utilization: {(abs(current_position) / max_position) * 100:.1f}%")
+            
+            logger.info(f"\nWallet Status:")
+            logger.info(f"{quote_asset} Balance: {wallet_manager.get_available_balance(quote_asset)}")
+            logger.info(f"{base_asset} Balance: {wallet_manager.get_available_balance(base_asset)}")
+            
+            # Mock order execution check
+            if hasattr(client, 'test_mode') and client.test_mode:
+                open_orders = client.get_open_orders(symbol)
+                trades = client.get_my_trades(symbol)
+                logger.info(f"\nMock Exchange Status:")
+                logger.info(f"Open orders: {len(open_orders) if open_orders else 0}")
+                logger.info(f"Recent trades: {len(trades) if trades else 0}")
+            
+            time.sleep(10)  # Wait between cycles
+            
+    except KeyboardInterrupt:
+        logger.info("\nTest interrupted by user")
+    except Exception as e:
+        logger.error(f"Test error: {str(e)}")
+        raise  # Re-raise to see full traceback
+    finally:
+        # Print test summary
+        logger.info("\n=== Trading System Test Summary ===")
+        logger.info(f"Test duration: {int(time.time() - start_time)} seconds")
+        logger.info(f"Orders tested: {results['orders_tested']}")
+        logger.info(f"Orders accepted: {results['orders_accepted']}")
+        logger.info(f"Orders rejected: {results['orders_rejected']}")
+        logger.info(f"Position updates: {results['position_updates']}")
+        logger.info(f"Risk checks performed: {results['risk_checks']}")
+        logger.info(f"Final position: {position_tracker.get_position(symbol)}")
+        logger.info(f"Final {quote_asset} balance: {wallet_manager.get_available_balance(quote_asset)}")
+        logger.info(f"Final {base_asset} balance: {wallet_manager.get_available_balance(base_asset)}")
+        
+    return results
+
 def main():
+    parser = argparse.ArgumentParser(description='Market Making Bot')
+    parser.add_argument('command', choices=['run', 'test-famex', 'test-mm', 'test-system'], 
+                       help='Command to execute')
+    parser.add_argument('--symbol', default='SZARUSDT', help='Trading pair symbol')
+    parser.add_argument('--spread', type=float, help='Custom spread percentage')
+    parser.add_argument('--duration', type=int, default=300, 
+                       help='Test duration in seconds (default: 300)')
+    parser.add_argument('--continuous', action='store_true', 
+                       help='Run tests continuously')
+    parser.add_argument('--full', action='store_true', 
+                       help='Run full test suite')
+    args = parser.parse_args()
+    
     # Initialize default loggers
     logger, test_logger = init_loggers()
-    
-    parser = argparse.ArgumentParser(description='ourOS Market Maker CLI')
-    
-    # Add subparsers for different commands
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # Test FameEX data command
-    test_parser = subparsers.add_parser('test-famex', help='Test FameEX market data and API endpoints')
-    test_parser.add_argument(
-        '--continuous',
-        action='store_true',
-        help='Run API tests continuously until stopped'
-    )
-    test_parser.add_argument(
-        '--symbol',
-        type=str,
-        default='SZAR-USDT',
-        help='Trading pair to test (default: SZAR-USDT)'
-    )
-    test_parser.add_argument(
-        '--full',
-        action='store_true',
-        help='Run full API test suite including authenticated endpoints'
-    )
-    test_parser.add_argument(
-        '--debug',
-        action='store_true',
-        help='Enable debug logging'
-    )
-    
-    # Run command
-    run_parser = subparsers.add_parser('run', help='Run the market maker')
-    run_parser.add_argument(
-        '--spread',
-        type=float,
-        help='Custom spread percentage (e.g., 0.02 for 2%%)',
-        default=None
-    )
-    
-    # Summary command
-    summary_parser = subparsers.add_parser('summary', help='Get market summary')
-    summary_parser.add_argument(
-        '--all',
-        action='store_true',
-        help='Show all pairs (default: show only KAS pairs)'
-    )
-    
-    # Add market making test command
-    mm_test_parser = subparsers.add_parser('test-mm', help='Test market making functionality')
-    mm_test_parser.add_argument(
-        '--symbol',
-        type=str,
-        default=SYMBOL,
-        help=f'Trading pair to test (default: {SYMBOL})'
-    )
-    
-    # Parse arguments
-    args = parser.parse_args()
     
     # Initialize API client
     if not API_KEY or not API_SECRET:
@@ -188,7 +301,7 @@ def main():
         run_market_maker(client, spread)
         
     elif args.command == 'summary':
-        get_market_summary(client, filter_kas=not args.all)
+        get_market_summary(client, filter_kas=not args.full)
         
     elif args.command == 'test-mm':
         # Reinitialize loggers with symbol and enable debug
@@ -198,6 +311,12 @@ def main():
         logger.info(f"Testing market making functionality for {args.symbol}...")
         results = test_market_making(logger, test_logger, client, args.symbol)
         success = any(r.get('success', False) for r in results.values())
+        sys.exit(0 if success else 1)
+        
+    elif args.command == 'test-system':
+        logger.info(f"Starting trading system test for {args.symbol}...")
+        results = test_trading_system(client, args.symbol, args.duration)
+        success = results['orders_accepted'] > 0 and results['position_updates'] > 0
         sys.exit(0 if success else 1)
         
     else:

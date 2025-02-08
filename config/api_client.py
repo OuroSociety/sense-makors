@@ -23,7 +23,7 @@ class FameexClient(ExchangeClient):
                 params_list.append(f"{key}={params[key]}")
         params_str = '&'.join(params_list)
         
-        # Create message string
+        # Create message string according to FameEX docs
         message = f"{method.upper()}{endpoint}{timestamp}{params_str}"
         
         # Generate HMAC SHA256 signature
@@ -41,17 +41,22 @@ class FameexClient(ExchangeClient):
     def _request(self, method: str, endpoint: str, 
                  params: Dict = None, signed: bool = False) -> Optional[Dict]:
         """Make API request with optional signing"""
-        # Only mock order-related endpoints in test mode
-        if self.test_mode and endpoint in [
-            "/sapi/v1/order",
-            "/sapi/v1/order/test",
-            "/sapi/v1/cancel"
-        ]:
+        # Only mock TRADE endpoints in test mode
+        MOCK_ENDPOINTS = [
+            "/sapi/v1/order",        # Create order
+            "/sapi/v1/order/test",   # Test order
+            "/sapi/v1/cancel",       # Cancel order
+            "/sapi/v1/batchCancel",  # Batch cancel
+            "/sapi/v1/openOrders",   # Open orders
+            "/sapi/v1/myTrades"      # Trade history
+        ]
+        
+        if self.test_mode and endpoint in MOCK_ENDPOINTS:
             return self._get_mock_response(endpoint, params)
             
         url = f"{self.base_url}{endpoint}"
         
-        # Generate timestamp and signature first for all authenticated requests
+        # Generate timestamp for all requests
         timestamp = str(int(time.time() * 1000))  # Use milliseconds timestamp
         
         headers = {
@@ -127,6 +132,37 @@ class FameexClient(ExchangeClient):
                     'status': 'CANCELED'
                 }
             }
+        elif endpoint == "/sapi/v1/openOrders":
+            # Mock response for open orders
+            return [
+                {
+                    'symbol': params.get('symbol', '').upper(),
+                    'side': 'BUY',
+                    'executedQty': '0',
+                    'orderId': 'test_' + str(int(time.time())),
+                    'price': '1000.0',
+                    'origQty': '1.0',
+                    'avgPrice': '0',
+                    'time': int(time.time() * 1000),
+                    'type': 'LIMIT',
+                    'status': 'NEW'
+                }
+            ]
+        elif endpoint == "/sapi/v1/myTrades":
+            # Mock response for trade history
+            return [
+                {
+                    'symbol': params.get('symbol', '').upper(),
+                    'side': 'BUY',
+                    'fee': '0.001',
+                    'price': '1000.0',
+                    'qty': '1.0',
+                    'id': 'trade_' + str(int(time.time())),
+                    'time': int(time.time() * 1000),
+                    'isMaker': True,
+                    'isBuyer': True
+                }
+            ]
         return {'code': 200, 'data': {}}
 
     def _format_symbol(self, symbol: str) -> str:
