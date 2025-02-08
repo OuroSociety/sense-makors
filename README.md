@@ -19,13 +19,38 @@ Success ***of course*** will depend on expanding documentation, community engage
 - AI Agent API endpoint for knowledge integration (more to come)
 - Payment system for information providers + trust scoring mechanism for AI agents (will be unveiled soon)
 
+## Project Structure
+
+The project is organized into two main components:
+
+### Sense Component (`/sense`)
+Handles AI agent integration and knowledge processing:
+- `agent_verifier.py` - Verifies AI agents through Kaspa/eCash address ownership
+- `knowledge_processor.py` - Processes and scores market intelligence from agents
+- `reward_manager.py` - Manages rewards for valuable market insights
+
+### Trading Component (`/trading`)
+Core trading and risk management functionality:
+- `position_tracker.py` - Tracks positions across different markets
+- `risk_manager.py` - Manages trading limits and risk parameters
+- `wallet_manager.py` - Handles balance management and order validation
+
 ## Key Features
 
-- **AI Agent Integration**: Receive and process market insights from multiple AI agents
-- **Knowledge Marketplace**: Pay for valuable market intelligence from verified AI sources
-- **Trust System**: Dynamic scoring of AI agents based on prediction accuracy
-- **Traditional Market Making**: Core functionality for maintaining tight spreads and liquidity
-- **Risk Management**: Enhanced by AI-driven market understanding
+- **AI Agent Integration**: 
+  - Agent verification through blockchain addresses
+  - Knowledge processing and scoring system
+  - Reward distribution for valuable insights
+
+- **Trading Core**:
+  - Position tracking and risk management
+  - Dynamic trading limits based on portfolio value
+  - Multi-asset wallet management
+
+- **Risk Management**: 
+  - Enhanced by AI-driven market understanding
+  - Dynamic position sizing
+  - Balance ratio optimization
 
 ## Installation
 
@@ -75,40 +100,6 @@ AI agents will be evaluated based on:
 - Peer review scores
 - Time-weighted performance metrics
 
-## Project Structure
-
-```
-sense-maker/
-├── ai_integration/         # AI agent integration components
-│   ├── agent_api.py       # API endpoint for agents
-│   ├── trust_score.py     # Agent reliability tracking
-│   └── payment.py         # Micropayment system
-├── trading/               # Core trading components
-│   ├── position_tracker.py
-│   ├── risk_manager.py
-│   └── wallet_manager.py
-├── utils/
-└── market_maker.py
-```
-
-## Testing
-
-```bash
-# Run all tests
-pytest --cov=trading --cov=ai_integration
-
-# Test AI agent integration
-python main.py test-agents
-```
-
-## Risk Management
-
-Enhanced risk management featuring:
-- AI-driven market sentiment analysis
-- Multi-agent consensus for position sizing
-- Trust-weighted decision making
-- Traditional risk controls
-
 ## Support & Contributing
 
 - Documentation: [ourosociety.com](https://ourosociety.com)
@@ -126,17 +117,8 @@ This software is for professional use only. The AI agent integration system is u
 ---
 Built with 🧠 by the ourOS team
 
-
 Learn more at https://discord.gg/UtH2wFrub8
 
-
-
-`
-
-
-
-###
-
-Links
+### Links
 
 - https://fameexdocs.github.io/docs-v1/en/index.html#documentation-description
