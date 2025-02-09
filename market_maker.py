@@ -11,8 +11,12 @@ from trading.risk_manager import RiskManager
 from utils.logger import setup_logger
 from trading.wallet_manager import WalletManager
 import statistics
+import uuid
+import asyncio
 
 logger = setup_logger("market_maker")
+
+__all__ = ['MarketMaker']
 
 class MarketMaker:
     def __init__(self, client: ExchangeClient):
@@ -23,14 +27,17 @@ class MarketMaker:
         self.risk_manager = RiskManager(self.position_tracker, self.wallet_manager)
         self.logger = logger
         self.price_history = []
+        self.running = False
+        self.job_id = str(uuid.uuid4())
+        self.last_update = time.time()
+        self.status = "initialized"
         
         # Set initial risk limits with minimum spread
         self.risk_manager.set_limits(
-            SYMBOL,
+            symbol=SYMBOL,
             max_position=Decimal('1000'),
-            max_drawdown=Decimal('100'),
-            min_spread=Decimal('0.02'),  # 2% minimum spread
-            target_ratio=Decimal('1.0')  # Equal value in both assets
+            max_order_size=Decimal('100'),
+            min_spread=Decimal('0.02')
         )
         
     def calculate_volatility(self) -> Decimal:
@@ -137,9 +144,23 @@ class MarketMaker:
             
         # Continue with intelligence processing...
 
-    def run(self):
-        """Main market making loop"""
-        while True:
+    def stop(self):
+        """Stop the market maker"""
+        self.running = False
+        # Cancel all active orders
+        for order_id in list(self.active_orders.keys()):
+            try:
+                self.client.cancel_order(SYMBOL, order_id)
+                del self.active_orders[order_id]
+            except Exception as e:
+                self.logger.error(f"Error canceling order {order_id}: {e}")
+
+    async def run_async(self):
+        """Async market making loop"""
+        self.running = True
+        self.status = "running"
+        
+        while self.running:
             try:
                 # Get current order book
                 order_book = self.client.get_order_book(SYMBOL, ORDER_BOOK_DEPTH)
@@ -152,10 +173,22 @@ class MarketMaker:
                     if result and result.get('code') == 200:
                         order_id = result['data']['orderId']
                         self.active_orders[order_id] = order
-                        
-                # Sleep to respect rate limits
-                time.sleep(0.1)  # Adjust as needed
+                
+                self.last_update = time.time()
+                await asyncio.sleep(0.1)  # Use async sleep
                 
             except Exception as e:
-                print(f"Error in market making loop: {e}")
-                time.sleep(1) 
+                self.logger.error(f"Error in market making loop: {e}")
+                self.status = f"error: {str(e)}"
+                await asyncio.sleep(1)
+    
+    def get_status(self) -> Dict:
+        """Get current market maker status"""
+        return {
+            "job_id": self.job_id,
+            "running": self.running,
+            "status": self.status,
+            "last_update": self.last_update,
+            "active_orders": len(self.active_orders),
+            "spread": str(getattr(self, 'spread', None))
+        } 

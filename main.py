@@ -28,6 +28,7 @@ from tests.utils.test_helpers import (
 from config.test_cli import run_api_tests
 from config.base_client import ExchangeClient
 from trading import PositionTracker, RiskManager, WalletManager  # Updated import
+from utils.trading_utils import create_exchange_client
 
 # Setup main logger and test results logger
 logger = setup_logger("main")
@@ -94,14 +95,6 @@ def init_loggers(symbol: str = None):
         logger = setup_logger("main")
         test_logger = setup_logger("test_results", log_to_console=False)
         return logger, test_logger
-
-def create_exchange_client(exchange_type: str, api_key: str, api_secret: str, test_mode: bool = False) -> ExchangeClient:
-    """Factory function to create exchange clients"""
-    if exchange_type.lower() == 'fameex':
-        from config.api_client import FameexClient
-        return FameexClient(api_key, api_secret, test_mode=test_mode)
-    else:
-        raise ValueError(f"Unsupported exchange type: {exchange_type}")
 
 def test_trading_system(client: ExchangeClient, symbol: str, duration: int = 300):
     """Test the complete trading system including position tracking and risk management"""
@@ -254,7 +247,7 @@ def test_trading_system(client: ExchangeClient, symbol: str, duration: int = 300
 
 def main():
     parser = argparse.ArgumentParser(description='Market Making Bot')
-    parser.add_argument('command', choices=['run', 'test-famex', 'test-mm', 'test-system'], 
+    parser.add_argument('command', choices=['run', 'test-famex', 'test-mm', 'test-system', 'api'], 
                        help='Command to execute')
     parser.add_argument('--symbol', default='SZARUSDT', help='Trading pair symbol')
     parser.add_argument('--spread', type=float, help='Custom spread percentage')
@@ -318,6 +311,12 @@ def main():
         results = test_trading_system(client, args.symbol, args.duration)
         success = results['orders_accepted'] > 0 and results['position_updates'] > 0
         sys.exit(0 if success else 1)
+        
+    elif args.command == 'api':
+        logger.info("Starting API server...")
+        from api.server import start_api
+        start_api()
+        return
         
     else:
         parser.print_help()
