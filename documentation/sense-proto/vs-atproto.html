@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sense-Proto vs. ATProto - Sense-Proto Documentation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/sense-proto/sense-proto" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html" class="active">Sense-Proto vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Sense-Proto vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Sense-Proto vs. ATProto: Functional Comparison</h1>
+            
+            <p>Both ATProto (the Authenticated Transfer Protocol) and Sense-Proto are decentralized protocols, but they have different focuses, architectures, and approaches to decentralization. This comparison highlights their key differences and explains how Sense-Proto's unique combination of Solid data principles and ecash technology creates distinct advantages.</p>
+
+            <div class="callout">
+                <h4>What is Sense-Proto?</h4>
+                <p>Sense-Proto is a decentralized protocol that combines the data sovereignty principles of Solid with the high-performance, low-cost transaction capabilities of ecash memecoins. It enables permissioned access to data through token-based economics while maintaining user data sovereignty.</p>
+            </div>
+
+            <h2>Protocol Foundations</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Built from scratch specifically for social networking</td>
+                        <td>Built on the combination of Solid (data) and ecash (economics)</td>
+                    </tr>
+                    <tr>
+                        <td>Focused on content distribution and federation</td>
+                        <td>Focused on data ownership and economic incentives</td>
+                    </tr>
+                    <tr>
+                        <td>Centralized development by Bluesky</td>
+                        <td>Community-driven development with multiple stakeholders</td>
+                    </tr>
+                    <tr>
+                        <td>Limited economic layer</td>
+                        <td>Robust economic layer with high TPS and low transaction costs</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Data Model & Structure</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Uses a CBOR-based data model called IPLD (InterPlanetary Linked Data)</td>
+                        <td>Uses RDF (Resource Description Framework) and Linked Data with token metadata</td>
+                    </tr>
+                    <tr>
+                        <td>Organizes data in repositories with collections of records</td>
+                        <td>Organizes data in LDP containers with token-gated access controls</td>
+                    </tr>
+                    <tr>
+                        <td>Has structured schemas called Lexicons that define data types</td>
+                        <td>Uses semantic web technologies with economic extensions</td>
+                    </tr>
+                    <tr>
+                        <td>More prescribed data formats optimized for social networking</td>
+                        <td>Highly flexible structure that can represent any type of data</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h2>Identity System</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Uses DIDs (Decentralized Identifiers) for identity</td>
+                        <td>Uses WebID with integrated wallet addresses for identity and economics</td>
+                    </tr>
+                    <tr>
+                        <td>Handles identity through a DNS-based naming system</td>
+                        <td>Identity is a URI that links to both profile and wallet information</td>
+                    </tr>
+                    <tr>
+                        <td>Custom authentication system tied to PDS</td>
+                        <td>Multiple authentication options including token-based verification</td>
+                    </tr>
+                    <tr>
+                        <td>Identity tied to PDS provider</td>
+                        <td>Identity can be hosted anywhere with flexible wallet connections</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Application Focus</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Specifically designed for social networking applications</td>
+                        <td>General-purpose with economic incentives for data sharing</td>
+                    </tr>
+                    <tr>
+                        <td>Built with public content distribution in mind</td>
+                        <td>Enables monetization of data access through high-performance micropayments</td>
+                    </tr>
+                    <tr>
+                        <td>Incorporates features like federation and content moderation</td>
+                        <td>Incorporates economic layer with 4,000+ TPS and sub-cent transaction costs</td>
+                    </tr>
+                    <tr>
+                        <td>Optimized for Bluesky's social network needs</td>
+                        <td>Optimized for token-gated communities and monetized data access</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Server Architecture</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Personal Data Servers (PDS) host user repositories</td>
+                        <td>Enhanced Pod servers with token verification and ecash integration</td>
+                    </tr>
+                    <tr>
+                        <td>Relay servers facilitate content distribution</td>
+                        <td>Applications request data with token proofs and micropayments</td>
+                    </tr>
+                    <tr>
+                        <td>App-specific data formats (lexicons)</td>
+                        <td>Application-data separation with economic incentive layer</td>
+                    </tr>
+                    <tr>
+                        <td>Built-in federation capabilities for social networking</td>
+                        <td>Economic federation through shared token ecosystems</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Performance & Scalability</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Transaction Throughput</td>
+                        <td>Limited by underlying infrastructure</td>
+                        <td>4,000+ TPS through ecash technology</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction Costs</td>
+                        <td>No built-in economic layer</td>
+                        <td>$0.0001-$0.001 per transaction</td>
+                    </tr>
+                    <tr>
+                        <td>Confirmation Time</td>
+                        <td>Depends on federation implementation</td>
+                        <td>1-2 seconds for economic transactions</td>
+                    </tr>
+                    <tr>
+                        <td>Scalability Model</td>
+                        <td>Federation of PDS instances</td>
+                        <td>Combination of Pod federation and high-throughput economic layer</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Access Control</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ATProto</th>
+                        <th>Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Record-level signing and verification</td>
+                        <td>Token-based access control with micropayment streams</td>
+                    </tr>
+                    <tr>
+                        <td>Content labeling and moderation infrastructure</td>
+                        <td>Economic incentives for content quality and moderation</td>
+                    </tr>
+                    <tr>
+                        <td>Public/private repository concept</td>
+                        <td>Granular token-gated permissions with programmable conditions</td>
+                    </tr>
+                    <tr>
+                        <td>More focused on public content distribution</td>
+                        <td>Economic incentives through token requirements and micropayments</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Economic Layer in Sense-Proto</h2>
+            
+            <p>A key differentiator of Sense-Proto is its robust economic layer powered by ecash technology:</p>
+            
+            <h3>Micropayment Streaming</h3>
+            
+            <p>Sense-Proto enables continuous micropayment streams for resource access, made possible by ecash's high throughput and low costs:</p>
+            
+            <pre><code># Sense-Proto Token-Based ACL with Micropayment Stream
+@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+@prefix token: &lt;http://sense-proto.org/ns/token#&gt;.
+
+&lt;#tokenAccess&gt;
+    a acl:Authorization;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/SENSE&gt;;
+    token:minimumAmount "100"^^xsd:decimal;
+    token:paymentStream "0.01"^^xsd:decimal;
+    token:paymentInterval "3600"^^xsd:integer;
+    acl:accessTo &lt;/data/premium-resource&gt;;
+    acl:mode acl:Read.</code></pre>
+            
+            <p>This example shows how Sense-Proto can require both token holdings and ongoing micropayments for resource access, a model that would be impractical on traditional blockchains due to high transaction costs.</p>
+            
+            <h3>Economic Models Enabled by Sense-Proto</h3>
+            
+            <ul>
+                <li><strong>Pay-per-Access</strong>: Micropayments in tokens for accessing specific resources</li>
+                <li><strong>Streaming Payments</strong>: Continuous tiny payments for ongoing data access</li>
+                <li><strong>Token-Gated Communities</strong>: Access to shared resources requires holding community tokens</li>
+                <li><strong>Creator Economies</strong>: Content creators can monetize their data directly</li>
+                <li><strong>Data Marketplaces</strong>: Trading access to valuable datasets using tokens</li>
+                <li><strong>Incentivized Contributions</strong>: Rewards for valuable data contributions</li>
+            </ul>
+            
+            <h3>Example: Micropayment Implementation</h3>
+            
+            <pre><code>// Client-side micropayment implementation in JavaScript
+import { senseProto } from '@sense-proto/client';
+import { setupEcashStream } from '@sense-proto/ecash';
+
+async function accessResourceWithMicropayments(resourceUrl, webId) {
+  // First, check if resource requires tokens or micropayments
+  const accessRequirements = await senseProto.getAccessRequirements(resourceUrl);
+  
+  if (accessRequirements.micropaymentStream) {
+    // Set up micropayment stream
+    const stream = await setupEcashStream({
+      recipient: accessRequirements.recipient,
+      amount: accessRequirements.paymentStream,
+      interval: accessRequirements.paymentInterval,
+      maxTotal: 5.0 // Set maximum total payment
+    });
+    
+    // Start the payment stream
+    await stream.start();
+    
+    // Get access token for the resource
+    const accessToken = await stream.getAccessToken();
+    
+    // Access the resource with the token
+    return senseProto.getResource(resourceUrl, { accessToken });
+  }
+  
+  // Fall back to standard access if no micropayments required
+  return senseProto.getResource(resourceUrl);
+}</code></pre>
+
+            <h2>Key Differences</h2>
+            
+            <div class="callout">
+                <h4>ATProto's Approach</h4>
+                <p>ATProto is designed specifically for social networking with built-in content distribution mechanisms. It uses a more prescribed data model optimized for social interactions but lacks a robust economic layer.</p>
+            </div>
+            
+            <div class="callout">
+                <h4>Sense-Proto's Approach</h4>
+                <p>Sense-Proto combines Solid's data sovereignty principles with ecash's high-performance economic layer. This creates a versatile protocol that enables both user data control and efficient economic incentives with thousands of transactions per second at minimal cost.</p>
+            </div>
+            
+            <h3>When to Choose Each Protocol</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Use Case</th>
+                        <th>Best Protocol</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic social networking</td>
+                        <td>ATProto</td>
+                        <td>Purpose-built for social interactions with federation</td>
+                    </tr>
+                    <tr>
+                        <td>Monetized content creation</td>
+                        <td>Sense-Proto</td>
+                        <td>High-performance micropayments and economic incentives</td>
+                    </tr>
+                    <tr>
+                        <td>Data marketplaces</td>
+                        <td>Sense-Proto</td>
+                        <td>Token-based access control with usage-based pricing</td>
+                    </tr>
+                    <tr>
+                        <td>Research collaboration</td>
+                        <td>Sense-Proto</td>
+                        <td>Data sovereignty with economic incentives for contributions</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise data sharing</td>
+                        <td>Sense-Proto</td>
+                        <td>Granular access control with economic governance</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Conclusion</h2>
+            
+            <p>While both ATProto and Sense-Proto aim to provide decentralized architectures, they serve different purposes and have different strengths. ATProto is specialized for social networking with built-in features for content distribution and moderation, while Sense-Proto combines data sovereignty with high-performance economics to enable new models for data monetization and access control.</p>
+            
+            <p>Sense-Proto's unique combination of Solid's data principles and ecash's transaction capabilities (4,000+ TPS at fractions of a cent) creates a protocol that can support economic models that would be impractical on other systems. This makes it particularly well-suited for applications where both data ownership and economic incentives are important.</p>
+            
+            <div class="callout">
+                <h4>Learn More</h4>
+                <p>To learn more about how Sense-Proto implements its economic layer, check out the <a href="access-control.html">Access Control</a> documentation and the <a href="sense-maker.html">Sense-Maker</a> guide.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Decentralized Data with Ecash Memecoins. <a href="https://solidproject.org/" target="_blank">Solid Project</a> | <a href="https://ecash.org/" target="_blank">Ecash</a></p>
+    </footer>
+</body>
+</html> 

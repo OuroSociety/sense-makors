@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sense-Proto: Decentralized Data with Ecash Memecoins | Documentation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/sense-proto/sense-proto" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html" class="active">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Sense-Proto vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Sense-Proto vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Welcome to Sense-Proto</h1>
+            
+            <p>Sense-Proto is a revolutionary decentralized protocol that combines the data sovereignty principles of Solid with the high-performance, low-cost transaction capabilities of ecash memecoins. This documentation will guide you through understanding and using Sense-Proto to build applications that leverage both user-controlled data and efficient token-based economics.</p>
+
+            <div class="callout">
+                <h4>What is Sense-Proto?</h4>
+                <p>Sense-Proto is a decentralized protocol that enables users to own their data while providing economic incentives for sharing through high-throughput, low-cost ecash memecoin transactions. It creates a new paradigm where data ownership, privacy, and economic value can coexist seamlessly.</p>
+            </div>
+
+            <h2>Core Components of Sense-Proto</h2>
+            
+            <p>Sense-Proto is built on two powerful technological foundations:</p>
+            
+            <div class="component-box">
+                <h3>Ecash Technology</h3>
+                <p>The economic engine of Sense-Proto, providing:</p>
+                <ul>
+                    <li><strong>High Transaction Throughput</strong>: Supporting thousands of transactions per second (TPS)</li>
+                    <li><strong>Minimal Transaction Costs</strong>: Fees measured in fractions of a cent</li>
+                    <li><strong>Fast Finality</strong>: Near-instant transaction confirmation</li>
+                    <li><strong>Scalable Architecture</strong>: Designed for global-scale adoption</li>
+                    <li><strong>Energy Efficiency</strong>: Environmentally sustainable operation</li>
+                </ul>
+            </div>
+            
+            <div class="component-box">
+                <h3>Solid Technology</h3>
+                <p>The data sovereignty foundation of Sense-Proto, providing:</p>
+                <ul>
+                    <li><strong>Personal Data Pods</strong>: User-controlled data storage</li>
+                    <li><strong>Decentralized Identity</strong>: WebID for authentication</li>
+                    <li><strong>Linked Data</strong>: Semantic web technologies for interoperability</li>
+                    <li><strong>Fine-grained Access Control</strong>: Granular permission systems</li>
+                    <li><strong>Application-Data Separation</strong>: Breaking data silos</li>
+                </ul>
+            </div>
+
+            <h2>How Sense-Proto Works</h2>
+            
+            <h3>The Synergy of Data and Economics</h3>
+            
+            <p>Sense-Proto creates a unique synergy between data sovereignty and economic incentives:</p>
+            
+            <ol>
+                <li><strong>Data Storage</strong>: Users store their data in personal Pods, maintaining full ownership and control</li>
+                <li><strong>Economic Layer</strong>: Ecash memecoins provide the economic infrastructure with high TPS and low costs</li>
+                <li><strong>Token-Based Access</strong>: Resources can require specific token holdings for access</li>
+                <li><strong>Micropayment Streams</strong>: Continuous tiny payments for ongoing data access</li>
+                <li><strong>Incentivized Sharing</strong>: Economic rewards for valuable data contributions</li>
+            </ol>
+            
+            <p>This combination creates a self-sustaining ecosystem where data creators are fairly compensated and data consumers get reliable access to high-quality information.</p>
+
+            <h3>Ecash: The Economic Engine</h3>
+            
+            <p>At the heart of Sense-Proto's economic layer is ecash technology, offering significant advantages over traditional blockchain systems:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Traditional Blockchain</th>
+                        <th>Ecash in Sense-Proto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Transactions Per Second</td>
+                        <td>7-15 TPS (Bitcoin/Ethereum)</td>
+                        <td>4,000+ TPS</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction Cost</td>
+                        <td>$0.50-$50+</td>
+                        <td>$0.0001-$0.001</td>
+                    </tr>
+                    <tr>
+                        <td>Confirmation Time</td>
+                        <td>Minutes to hours</td>
+                        <td>1-2 seconds</td>
+                    </tr>
+                    <tr>
+                        <td>Energy Consumption</td>
+                        <td>High (PoW) to Moderate (PoS)</td>
+                        <td>Minimal</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p>These characteristics make ecash ideal for micropayments and frequent access control verification, enabling economic models that would be impractical on traditional blockchains.</p>
+
+            <h3>Token-Based Access Control</h3>
+            
+            <p>Sense-Proto implements token-based access control through its innovative ACL system:</p>
+            
+            <pre><code># Sense-Proto Token-Based ACL
+@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt;.
+@prefix token: &lt;http://sense-proto.org/ns/token#&gt;.
+
+&lt;#tokenAccess&gt;
+    a acl:Authorization;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/SENSE&gt;;
+    token:minimumAmount "100"^^xsd:decimal;
+    token:paymentStream "0.01"^^xsd:decimal;
+    token:paymentInterval "3600"^^xsd:integer;
+    acl:accessTo &lt;/data/premium-resource&gt;;
+    acl:mode acl:Read.</code></pre>
+            
+            <p>This example shows how Sense-Proto can require both token holdings and ongoing micropayments for resource access, enabled by ecash's low transaction costs.</p>
+
+            <h2>Key Features of Sense-Proto</h2>
+            
+            <h3>High-Performance Economics</h3>
+            
+            <ul>
+                <li><strong>Micropayment Streaming</strong>: Pay-as-you-go access to data resources</li>
+                <li><strong>Low-Friction Transactions</strong>: Minimal costs enable new economic models</li>
+                <li><strong>Real-Time Settlements</strong>: Instant payment verification and access</li>
+                <li><strong>Scalable Token Economy</strong>: Supports millions of users and billions of transactions</li>
+            </ul>
+            
+            <h3>Enhanced Data Sovereignty</h3>
+            
+            <ul>
+                <li><strong>Full Data Ownership</strong>: Users maintain complete control of their data</li>
+                <li><strong>Monetization Options</strong>: Multiple ways to derive value from personal data</li>
+                <li><strong>Programmable Permissions</strong>: Complex access rules based on tokens and conditions</li>
+                <li><strong>Interoperable Standards</strong>: Works with existing web technologies</li>
+            </ul>
+            
+            <h3>Community Governance</h3>
+            
+            <ul>
+                <li><strong>Token-Weighted Voting</strong>: Democratic decision-making for shared resources</li>
+                <li><strong>Proposal Systems</strong>: Structured processes for community governance</li>
+                <li><strong>Incentive Alignment</strong>: Economic rewards for beneficial contributions</li>
+                <li><strong>Transparent Operations</strong>: Open processes and verifiable outcomes</li>
+            </ul>
+
+            <h2>Use Cases</h2>
+            
+            <p>Sense-Proto enables innovative applications across various domains:</p>
+            
+            <h3>Content Creator Economies</h3>
+            
+            <p>Content creators can monetize their work through token-gated access and streaming micropayments, creating direct economic relationships with their audience without intermediaries. The low transaction costs of ecash make even small payments economically viable.</p>
+            
+            <h3>Data Marketplaces</h3>
+            
+            <p>Organizations can offer valuable datasets with token-based access requirements and usage-based pricing. Ecash's high throughput enables real-time tracking and billing for data usage at scale, while maintaining data sovereignty principles.</p>
+            
+            <h3>Collaborative Research Networks</h3>
+            
+            <p>Research communities can create shared data repositories with token-based governance and contribution incentives. The combination of Solid's data organization and ecash's economic layer enables fair attribution and compensation for research contributions.</p>
+            
+            <h3>Decentralized Social Networks</h3>
+            
+            <p>Social platforms can be built where users own their social graph and content while monetizing through token-gated access. Ecash's performance enables real-time interactions and micropayments for likes, shares, and other engagements.</p>
+
+            <h2>Getting Started with Sense-Proto</h2>
+            
+            <p>Ready to dive into Sense-Proto? Here's how to get started:</p>
+            
+            <ol>
+                <li>Check out the <a href="overview.html">Overview</a> to understand the architecture</li>
+                <li>Follow the <a href="quickstart.html">Quickstart Guide</a> to set up your development environment</li>
+                <li>Learn about <a href="webid.html">WebID</a> and <a href="pods.html">Pods</a> to understand the data storage concepts</li>
+                <li>Explore <a href="access-control.html">Access Control</a> to see how token-based permissions work</li>
+                <li>Set up your own <a href="server-setup.html">Sense-Proto Server</a> for development</li>
+            </ol>
+            
+            <div class="callout">
+                <h4>Developer Resources</h4>
+                <p>Sense-Proto provides libraries for various programming languages to make integration easy:</p>
+                <ul>
+                    <li><code>@sense-proto/client</code>: JavaScript/TypeScript client library</li>
+                    <li><code>sense-proto-py</code>: Python client library</li>
+                    <li><code>sense-proto-server</code>: Server implementation with token verification</li>
+                    <li><code>@sense-proto/ecash</code>: Ecash integration library</li>
+                </ul>
+            </div>
+
+            <h2>Comparison with Other Protocols</h2>
+            
+            <p>Wondering how Sense-Proto compares to other decentralized protocols?</p>
+            
+            <ul>
+                <li>See <a href="vs-atproto.html">Sense-Proto vs. ATProto</a> for a comparison with Bluesky's protocol</li>
+                <li>Check out <a href="vs-activitypub.html">Sense-Proto vs. ActivityPub</a> to compare with Mastodon's protocol</li>
+            </ul>
+            
+            <p>These comparisons highlight the unique value proposition of Sense-Proto in combining high-performance economics with data sovereignty.</p>
+
+            <h2>Community and Support</h2>
+            
+            <p>Sense-Proto is an open community project. Here's how to get involved:</p>
+            
+            <ul>
+                <li>Join our <a href="https://discord.gg/sense-proto" target="_blank">Discord community</a></li>
+                <li>Contribute to the <a href="https://github.com/sense-proto" target="_blank">GitHub repositories</a></li>
+                <li>Follow us on <a href="https://twitter.com/senseproto" target="_blank">Twitter</a> for updates</li>
+                <li>Check out the <a href="sense-maker.html">Sense-Maker</a> guide for community governance</li>
+            </ul>
+            
+            <p>We welcome contributions, feedback, and collaboration from the community!</p>
+            
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Ready to learn more? Check out the <a href="overview.html">Overview</a> for a deeper understanding of Sense-Proto's architecture and components.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Decentralized Data with Ecash Memecoins. <a href="https://solidproject.org/" target="_blank">Solid Project</a> | <a href="https://ecash.org/" target="_blank">Ecash</a></p>
+    </footer>
+</body>
+</html> 

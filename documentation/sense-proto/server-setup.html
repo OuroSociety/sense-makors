@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setting Up a Solid Server - Solid Documentation | Sense-Proto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/solid/solid" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html" class="active">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Solid vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Solid vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Setting Up a Solid Server</h1>
+            
+            <p>This guide will walk you through the process of setting up your own Solid server. Running your own server gives you complete control over your data and allows you to provide Pod hosting for yourself or others.</p>
+
+            <div class="callout">
+                <h4>Prerequisites</h4>
+                <p>Before starting, ensure you have:</p>
+                <ul>
+                    <li>Basic knowledge of command-line tools</li>
+                    <li>Node.js (version 16 or later) installed</li>
+                    <li>A domain name (optional, but recommended for production use)</li>
+                    <li>SSL certificates (optional, but recommended for production use)</li>
+                </ul>
+            </div>
+
+            <h2>Available Solid Server Implementations</h2>
+            
+            <p>There are several Solid server implementations to choose from, each with its own features and focus:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Language</th>
+                        <th>Features</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="https://github.com/CommunitySolidServer/CommunitySolidServer" target="_blank">Community Solid Server (CSS)</a></td>
+                        <td>JavaScript/TypeScript</td>
+                        <td>Modular, extensible, WAC & ACP support, multi-user</td>
+                        <td>Development, research, production</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/solid/node-solid-server" target="_blank">Node Solid Server (NSS)</a></td>
+                        <td>JavaScript</td>
+                        <td>WebID-TLS & OIDC, WAC, multi-user</td>
+                        <td>Legacy applications</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/solid/solidproject.org/wiki/Solid-Servers" target="_blank">Enterprise Solid Server (ESS)</a></td>
+                        <td>Various</td>
+                        <td>Enterprise features, scalability, support</td>
+                        <td>Enterprise deployments</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/solid/solid-nextcloud" target="_blank">Solid-Nextcloud</a></td>
+                        <td>PHP</td>
+                        <td>Integration with Nextcloud</td>
+                        <td>Existing Nextcloud users</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p>For this guide, we'll focus on setting up the Community Solid Server (CSS), which is the most actively maintained and feature-rich implementation.</p>
+
+            <h2>Setting Up Community Solid Server</h2>
+            
+            <h3>Method 1: Using Docker (Recommended for Quick Start)</h3>
+            
+            <p>Docker provides the easiest way to get started with CSS:</p>
+            
+            <ol>
+                <li>Ensure Docker is installed on your system</li>
+                <li>Run the following command to start CSS with default settings:
+                    <pre><code>docker run --rm -p 3000:3000 -it solidproject/community-server:latest</code></pre>
+                </li>
+                <li>Access your server at <code>http://localhost:3000</code></li>
+            </ol>
+            
+            <p>For persistence, you can mount a volume:</p>
+            
+            <pre><code>docker run --rm -p 3000:3000 -v ~/solid-data:/data -it solidproject/community-server:latest</code></pre>
+            
+            <h3>Method 2: Installing from NPM</h3>
+            
+            <p>For more control and customization, you can install CSS directly:</p>
+            
+            <ol>
+                <li>Create a new directory for your server:
+                    <pre><code>mkdir my-solid-server
+cd my-solid-server</code></pre>
+                </li>
+                <li>Initialize a new Node.js project:
+                    <pre><code>npm init -y</code></pre>
+                </li>
+                <li>Install the Community Solid Server:
+                    <pre><code>npm install @solid/community-server</code></pre>
+                </li>
+                <li>Create a configuration file <code>config.json</code>:
+                    <pre><code>{
+  "port": 3000,
+  "baseUrl": "http://localhost:3000/",
+  "rootFilePath": "./data/",
+  "logging": {
+    "level": "info"
+  }
+}</code></pre>
+                </li>
+                <li>Start the server:
+                    <pre><code>npx @solid/community-server -c config.json</code></pre>
+                </li>
+                <li>Access your server at <code>http://localhost:3000</code></li>
+            </ol>
+            
+            <h3>Method 3: Building from Source</h3>
+            
+            <p>For developers who want to contribute or customize the server code:</p>
+            
+            <ol>
+                <li>Clone the repository:
+                    <pre><code>git clone https://github.com/CommunitySolidServer/CommunitySolidServer.git
+cd CommunitySolidServer</code></pre>
+                </li>
+                <li>Install dependencies:
+                    <pre><code>npm install</code></pre>
+                </li>
+                <li>Build the server:
+                    <pre><code>npm run build</code></pre>
+                </li>
+                <li>Start the server:
+                    <pre><code>npm start</code></pre>
+                </li>
+                <li>Access your server at <code>http://localhost:3000</code></li>
+            </ol>
+
+            <h2>Configuration Options</h2>
+            
+            <p>The Community Solid Server is highly configurable. Here are some important configuration options:</p>
+            
+            <h3>Basic Configuration</h3>
+            
+            <p>Create a <code>config.json</code> file with the following options:</p>
+            
+            <pre><code>{
+  "port": 3000,
+  "baseUrl": "https://your-domain.com/",
+  "rootFilePath": "./data/",
+  "logging": {
+    "level": "info"
+  },
+  "storage": {
+    "backend": "file",
+    "path": "./data/"
+  },
+  "identity": {
+    "handler": "token",
+    "issuer": "https://your-domain.com/",
+    "jwks": {
+      "keys": []
+    }
+  }
+}</code></pre>
+            
+            <h3>Authentication Methods</h3>
+            
+            <p>CSS supports multiple authentication methods:</p>
+            
+            <ul>
+                <li><strong>WebID-OIDC</strong>: The recommended authentication method
+                    <pre><code>{
+  "identity": {
+    "handler": "oidc",
+    "issuer": "https://your-domain.com/",
+    "jwks": {
+      "keys": []
+    }
+  }
+}</code></pre>
+                </li>
+                <li><strong>Client Credentials</strong>: For server-to-server authentication
+                    <pre><code>{
+  "identity": {
+    "handler": "token",
+    "issuer": "https://your-domain.com/",
+    "jwks": {
+      "keys": []
+    }
+  }
+}</code></pre>
+                </li>
+            </ul>
+            
+            <h3>Access Control</h3>
+            
+            <p>CSS supports both Web Access Control (WAC) and Access Control Policies (ACP):</p>
+            
+            <ul>
+                <li><strong>WAC</strong> (default):
+                    <pre><code>{
+  "authorization": {
+    "handler": "wac"
+  }
+}</code></pre>
+                </li>
+                <li><strong>ACP</strong>:
+                    <pre><code>{
+  "authorization": {
+    "handler": "acp"
+  }
+}</code></pre>
+                </li>
+            </ul>
+
+            <h2>Setting Up for Production</h2>
+            
+            <p>For a production environment, you'll need to consider the following:</p>
+            
+            <h3>Domain and HTTPS</h3>
+            
+            <p>For a production server, you should use a domain name and HTTPS:</p>
+            
+            <ol>
+                <li>Obtain a domain name from a domain registrar</li>
+                <li>Set up DNS records to point to your server's IP address</li>
+                <li>Obtain SSL certificates (e.g., using Let's Encrypt)</li>
+                <li>Configure your server to use HTTPS:
+                    <pre><code>{
+  "port": 443,
+  "baseUrl": "https://your-domain.com/",
+  "https": {
+    "cert": "/path/to/cert.pem",
+    "key": "/path/to/key.pem"
+  }
+}</code></pre>
+                </li>
+            </ol>
+            
+            <h3>Reverse Proxy</h3>
+            
+            <p>For better performance and security, you can use a reverse proxy like Nginx:</p>
+            
+            <pre><code>server {
+    listen 443 ssl;
+    server_name your-domain.com;
+
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+            
+            <h3>Process Management</h3>
+            
+            <p>Use a process manager like PM2 to keep your server running:</p>
+            
+            <ol>
+                <li>Install PM2:
+                    <pre><code>npm install -g pm2</code></pre>
+                </li>
+                <li>Create a PM2 configuration file <code>ecosystem.config.js</code>:
+                    <pre><code>module.exports = {
+  apps: [{
+    name: 'solid-server',
+    script: 'node_modules/.bin/community-solid-server',
+    args: '-c config.json',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G'
+  }]
+};</code></pre>
+                </li>
+                <li>Start the server with PM2:
+                    <pre><code>pm2 start ecosystem.config.js</code></pre>
+                </li>
+                <li>Set up PM2 to start on system boot:
+                    <pre><code>pm2 startup
+pm2 save</code></pre>
+                </li>
+            </ol>
+
+            <h2>Managing Your Solid Server</h2>
+            
+            <h3>Creating Users</h3>
+            
+            <p>By default, CSS allows users to register their own accounts. You can also create users programmatically:</p>
+            
+            <pre><code>curl -X POST https://your-domain.com/idp/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "secure-password",
+    "podName": "username"
+  }'</code></pre>
+            
+            <h3>Monitoring</h3>
+            
+            <p>Monitor your server's health and performance:</p>
+            
+            <ul>
+                <li>Use PM2's monitoring features:
+                    <pre><code>pm2 monit</code></pre>
+                </li>
+                <li>Check server logs:
+                    <pre><code>pm2 logs solid-server</code></pre>
+                </li>
+                <li>Set up monitoring tools like Prometheus and Grafana for more advanced monitoring</li>
+            </ul>
+            
+            <h3>Backup and Recovery</h3>
+            
+            <p>Regularly back up your server data:</p>
+            
+            <ol>
+                <li>Stop the server or ensure consistent backups</li>
+                <li>Back up the data directory:
+                    <pre><code>rsync -av /path/to/data/ /path/to/backup/</code></pre>
+                </li>
+                <li>Consider automated backup solutions</li>
+            </ol>
+
+            <h2>Troubleshooting</h2>
+            
+            <h3>Common Issues</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Possible Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Server won't start</td>
+                        <td>Port already in use</td>
+                        <td>Change the port in config.json or stop the process using the port</td>
+                    </tr>
+                    <tr>
+                        <td>Authentication fails</td>
+                        <td>Incorrect OIDC configuration</td>
+                        <td>Check the identity provider settings and JWKS configuration</td>
+                    </tr>
+                    <tr>
+                        <td>Cannot create Pod</td>
+                        <td>Permissions issue</td>
+                        <td>Check file system permissions for the data directory</td>
+                    </tr>
+                    <tr>
+                        <td>HTTPS not working</td>
+                        <td>Certificate issues</td>
+                        <td>Verify certificate paths and validity</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Debugging</h3>
+            
+            <p>Increase logging verbosity for debugging:</p>
+            
+            <pre><code>{
+  "logging": {
+    "level": "debug"
+  }
+}</code></pre>
+            
+            <p>Check the logs for detailed error messages:</p>
+            
+            <pre><code>tail -f logs/solid-server.log</code></pre>
+
+            <h2>Advanced Topics</h2>
+            
+            <h3>Custom Extensions</h3>
+            
+            <p>CSS is modular and extensible. You can create custom components:</p>
+            
+            <ol>
+                <li>Create a new module that implements the required interfaces</li>
+                <li>Register your module in the dependency injection system</li>
+                <li>Configure CSS to use your module</li>
+            </ol>
+            
+            <p>Example of a custom configuration with extensions:</p>
+            
+            <pre><code>import { ComponentsManager } from '@solid/community-server';
+import { MyCustomModule } from './MyCustomModule';
+
+const manager = await ComponentsManager.build({
+  mainModulePath: 'node_modules/@solid/community-server/dist/',
+  logLevel: 'info'
+});
+
+// Register custom module
+manager.registerModule(MyCustomModule);
+
+const server = await manager.instantiate();
+await server.start();</code></pre>
+            
+            <h3>Integration with Other Systems</h3>
+            
+            <p>CSS can be integrated with other systems:</p>
+            
+            <ul>
+                <li><strong>Database backends</strong>: Configure CSS to use MongoDB or other databases instead of the file system</li>
+                <li><strong>External identity providers</strong>: Integrate with existing OIDC providers</li>
+                <li><strong>Webhooks</strong>: Set up notifications for data changes</li>
+            </ul>
+
+            <h2>Next Steps</h2>
+            
+            <p>Now that you have your Solid server up and running, consider:</p>
+            
+            <ul>
+                <li>Learning how to <a href="client-apps.html">build client applications</a> that interact with your server</li>
+                <li>Exploring <a href="data-model.html">data modeling</a> for your Solid applications</li>
+                <li>Understanding how to use <a href="sparql.html">SPARQL</a> for querying Linked Data</li>
+                <li>Contributing to the <a href="contribute.html">Solid community</a></li>
+            </ul>
+            
+            <div class="callout">
+                <h4>Resources</h4>
+                <p>For more information, check out:</p>
+                <ul>
+                    <li><a href="https://github.com/CommunitySolidServer/CommunitySolidServer/wiki" target="_blank">Community Solid Server Wiki</a></li>
+                    <li><a href="https://solidproject.org/developers" target="_blank">Solid Developer Resources</a></li>
+                    <li><a href="https://forum.solidproject.org/c/developers" target="_blank">Solid Developer Forum</a></li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Documentation for Solid. <a href="https://solidproject.org/" target="_blank">Solid Project</a></p>
+    </footer>
+</body>
+</html> 

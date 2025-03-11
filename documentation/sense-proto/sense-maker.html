@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sense-Maker - Sense-Proto Documentation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/sense-proto/sense-proto" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Sense-Proto vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Sense-Proto vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html" class="active">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Sense-Maker: Community Governance & Token Management</h1>
+            
+            <p>Sense-Maker is a powerful tool for managing token-based access control, community governance, and economic incentives in the Sense-Proto ecosystem. It provides a user-friendly interface for creating, managing, and monitoring token-gated resources and communities.</p>
+
+            <div class="callout">
+                <h4>Key Features</h4>
+                <p>Sense-Maker combines high-performance ecash technology (4,000+ TPS at fractions of a cent per transaction) with intuitive interfaces for managing token-based access control, creating economic incentives, and governing digital communities.</p>
+            </div>
+
+            <h2>Getting Started with Sense-Maker</h2>
+            
+            <h3>Installation</h3>
+            
+            <p>You can install Sense-Maker using npm:</p>
+            
+            <pre><code>npm install -g @sense-proto/sense-maker</code></pre>
+            
+            <p>Or run it directly using Docker:</p>
+            
+            <pre><code>docker run -p 3000:3000 senseproto/sense-maker</code></pre>
+            
+            <p>Once installed, you can access the Sense-Maker interface at <code>http://localhost:3000</code>.</p>
+
+            <h3>Connecting Your Pod and Wallet</h3>
+            
+            <p>To use Sense-Maker, you need to connect both your Sense-Proto Pod and your ecash wallet:</p>
+            
+            <ol>
+                <li>Click "Connect Pod" and authenticate with your WebID</li>
+                <li>Click "Connect Wallet" and follow the prompts to connect your ecash wallet</li>
+                <li>Once both are connected, you'll see your Pod resources and token holdings in the dashboard</li>
+            </ol>
+            
+            <p>Sense-Maker supports multiple wallet providers and can manage multiple Pods simultaneously.</p>
+
+            <h2>Token Management</h2>
+            
+            <h3>Creating and Managing Tokens</h3>
+            
+            <p>Sense-Maker allows you to create and manage ecash memecoins for your community:</p>
+            
+            <ol>
+                <li>Navigate to the "Tokens" section in the sidebar</li>
+                <li>Click "Create New Token" to launch the token creation wizard</li>
+                <li>Specify token details:
+                    <ul>
+                        <li>Token name and symbol</li>
+                        <li>Initial supply and distribution</li>
+                        <li>Token economics (fixed supply, mintable, etc.)</li>
+                        <li>Token metadata and description</li>
+                    </ul>
+                </li>
+                <li>Review and confirm the token creation</li>
+                <li>Pay a small ecash fee to deploy the token (typically $0.01-$0.10)</li>
+            </ol>
+            
+            <p>Once created, your token will be available for use in access control rules and community governance.</p>
+
+            <h3>Token Distribution</h3>
+            
+            <p>Sense-Maker provides several methods for distributing tokens to community members:</p>
+            
+            <ul>
+                <li><strong>Direct Transfer</strong>: Send tokens directly to WebIDs or wallet addresses</li>
+                <li><strong>Airdrop</strong>: Distribute tokens to multiple recipients in a single operation</li>
+                <li><strong>Claim Page</strong>: Create a page where users can claim tokens by meeting certain criteria</li>
+                <li><strong>Contribution Rewards</strong>: Automatically reward users for contributions to the community</li>
+                <li><strong>Streaming Payments</strong>: Set up continuous micropayment streams to recipients</li>
+            </ul>
+            
+            <p>These distribution methods leverage ecash's high throughput (4,000+ TPS) and low transaction costs ($0.0001-$0.001) to make even small-value distributions economically viable.</p>
+
+            <h3>Token Analytics</h3>
+            
+            <p>Sense-Maker provides detailed analytics for your tokens:</p>
+            
+            <ul>
+                <li>Distribution metrics and holder demographics</li>
+                <li>Transaction volume and velocity</li>
+                <li>Usage patterns in access control</li>
+                <li>Governance participation rates</li>
+                <li>Economic activity and value flows</li>
+            </ul>
+            
+            <p>These analytics help you understand how your tokens are being used and how to optimize your community's economic model.</p>
+
+            <h2>Access Control Configuration</h2>
+            
+            <h3>Token-Gated Resources</h3>
+            
+            <p>Sense-Maker makes it easy to configure token-based access control for your Pod resources:</p>
+            
+            <ol>
+                <li>Navigate to the "Resources" section in the sidebar</li>
+                <li>Select a resource or container to configure</li>
+                <li>Click "Add Token Rule" to create a new access control rule</li>
+                <li>Configure the rule:
+                    <ul>
+                        <li>Select the required token</li>
+                        <li>Set the minimum token holding requirement</li>
+                        <li>Choose the access modes (Read, Write, Append)</li>
+                        <li>Set optional time limits or other conditions</li>
+                    </ul>
+                </li>
+                <li>Save the rule to apply it immediately</li>
+            </ol>
+            
+            <p>You can create multiple rules for different tokens and combine them with traditional access control rules.</p>
+
+            <h3>Micropayment Streams</h3>
+            
+            <p>Sense-Maker allows you to set up micropayment streams for continuous access to resources:</p>
+            
+            <ol>
+                <li>Select a resource to configure</li>
+                <li>Click "Add Payment Stream" to create a new payment requirement</li>
+                <li>Configure the stream:
+                    <ul>
+                        <li>Select the payment token</li>
+                        <li>Set the payment amount per interval</li>
+                        <li>Define the payment interval (e.g., hourly, daily)</li>
+                        <li>Specify the payment recipient (defaults to resource owner)</li>
+                    </ul>
+                </li>
+                <li>Save the configuration to apply it immediately</li>
+            </ol>
+            
+            <p>Micropayment streams are powered by ecash payment channels, which enable thousands of tiny transactions with minimal overhead.</p>
+
+            <h3>Access Patterns and Templates</h3>
+            
+            <p>Sense-Maker provides pre-configured templates for common access patterns:</p>
+            
+            <ul>
+                <li><strong>Community Membership</strong>: Require token holdings for access to community resources</li>
+                <li><strong>Premium Content</strong>: Set up one-time payments for access to premium content</li>
+                <li><strong>Subscription Service</strong>: Configure recurring micropayments for ongoing access</li>
+                <li><strong>Tiered Access</strong>: Create multiple access levels based on token holdings</li>
+                <li><strong>Time-Limited Access</strong>: Grant access for a specific time period</li>
+                <li><strong>Contribution-Based Access</strong>: Grant access based on contributions to the community</li>
+            </ul>
+            
+            <p>These templates can be customized to suit your specific needs.</p>
+
+            <h2>Community Governance</h2>
+            
+            <h3>Creating a Governance Structure</h3>
+            
+            <p>Sense-Maker helps you establish token-based governance for your community:</p>
+            
+            <ol>
+                <li>Navigate to the "Governance" section in the sidebar</li>
+                <li>Click "Create Governance Structure" to start the setup wizard</li>
+                <li>Define the governance parameters:
+                    <ul>
+                        <li>Voting token and minimum holdings for participation</li>
+                        <li>Proposal creation requirements</li>
+                        <li>Voting period and quorum requirements</li>
+                        <li>Implementation mechanisms (automatic or manual)</li>
+                    </ul>
+                </li>
+                <li>Create initial governance documents and rules</li>
+                <li>Invite community members to participate</li>
+            </ol>
+            
+            <p>Once established, your governance structure will enable community-driven decision-making.</p>
+
+            <h3>Proposal and Voting System</h3>
+            
+            <p>Sense-Maker includes a comprehensive proposal and voting system:</p>
+            
+            <ul>
+                <li><strong>Proposal Creation</strong>: Members can create proposals for community consideration</li>
+                <li><strong>Discussion Forums</strong>: Integrated discussion spaces for each proposal</li>
+                <li><strong>Voting Mechanisms</strong>: Multiple voting methods including token-weighted voting</li>
+                <li><strong>Delegation</strong>: Members can delegate their voting power to trusted representatives</li>
+                <li><strong>Execution</strong>: Automatic or manual execution of approved proposals</li>
+            </ul>
+            
+            <p>The voting system uses ecash for secure, verifiable voting with minimal transaction costs.</p>
+
+            <h3>Treasury Management</h3>
+            
+            <p>Sense-Maker provides tools for managing community treasuries:</p>
+            
+            <ul>
+                <li><strong>Treasury Creation</strong>: Set up a shared treasury for community funds</li>
+                <li><strong>Income Streams</strong>: Configure automatic deposits from micropayments and other sources</li>
+                <li><strong>Expenditure Proposals</strong>: Community members can propose treasury expenditures</li>
+                <li><strong>Budget Allocation</strong>: Set up recurring budgets for community initiatives</li>
+                <li><strong>Financial Reporting</strong>: Transparent reporting of treasury activities</li>
+            </ul>
+            
+            <p>Treasury management is secured by multi-signature controls and transparent on-chain records.</p>
+
+            <h2>Advanced Features</h2>
+            
+            <h3>Programmable Access Control</h3>
+            
+            <p>Sense-Maker supports programmable access control rules with complex conditions:</p>
+            
+            <pre><code>// Example of a programmable access rule
+{
+  "type": "ProgrammableAccessRule",
+  "conditions": [
+    {
+      "type": "TokenHolding",
+      "token": "https://tokens.example.org/memecoins/COMMUNITY",
+      "minimumAmount": 100
+    },
+    {
+      "type": "ContributionMetric",
+      "metric": "ForumPosts",
+      "minimumValue": 5,
+      "timeWindow": "30d"
+    },
+    {
+      "type": "LogicalOperator",
+      "operator": "OR",
+      "conditions": [
+        {
+          "type": "TokenHolding",
+          "token": "https://tokens.example.org/memecoins/PREMIUM",
+          "minimumAmount": 10
+        },
+        {
+          "type": "MicropaymentStream",
+          "token": "https://tokens.example.org/memecoins/SENSE",
+          "amount": 0.01,
+          "interval": 3600
+        }
+      ]
+    }
+  ],
+  "accessModes": ["Read", "Append"]
+}</code></pre>
+            
+            <p>These rules can be created using a visual editor or by directly editing the JSON configuration.</p>
+
+            <h3>Integration with External Systems</h3>
+            
+            <p>Sense-Maker can integrate with external systems through its API:</p>
+            
+            <ul>
+                <li><strong>Discord Integration</strong>: Sync token holdings with Discord roles</li>
+                <li><strong>GitHub Integration</strong>: Grant repository access based on token holdings</li>
+                <li><strong>Web3 Wallet Integration</strong>: Connect with popular Web3 wallets</li>
+                <li><strong>Analytics Platforms</strong>: Export data to external analytics tools</li>
+                <li><strong>Custom Webhooks</strong>: Trigger actions in external systems based on token events</li>
+            </ul>
+            
+            <p>The API documentation is available in the "Developers" section of Sense-Maker.</p>
+
+            <h3>Customization and Theming</h3>
+            
+            <p>Sense-Maker can be customized to match your community's branding:</p>
+            
+            <ul>
+                <li>Custom color schemes and typography</li>
+                <li>Logo and branding elements</li>
+                <li>Custom domain integration</li>
+                <li>Personalized welcome messages and onboarding flows</li>
+                <li>Community-specific terminology and labels</li>
+            </ul>
+            
+            <p>Customization options are available in the "Settings" section of Sense-Maker.</p>
+
+            <h2>Use Cases</h2>
+            
+            <h3>Creator Communities</h3>
+            
+            <p>Sense-Maker is ideal for creator communities that want to monetize content while maintaining data sovereignty:</p>
+            
+            <ul>
+                <li>Token-gated access to premium content</li>
+                <li>Micropayment streams for ongoing support</li>
+                <li>Community governance of shared resources</li>
+                <li>Direct economic relationship between creators and supporters</li>
+                <li>Transparent revenue sharing among collaborators</li>
+            </ul>
+            
+            <p>Creators can maintain ownership of their data while building sustainable economic models.</p>
+
+            <h3>Research Collaborations</h3>
+            
+            <p>Research teams can use Sense-Maker to manage collaborative projects:</p>
+            
+            <ul>
+                <li>Token-gated access to research data</li>
+                <li>Economic incentives for data contributions</li>
+                <li>Governance of shared research resources</li>
+                <li>Transparent attribution and credit allocation</li>
+                <li>Micropayment-based access to specialized datasets</li>
+            </ul>
+            
+            <p>This enables new models for open science with appropriate economic incentives.</p>
+
+            <h3>Data Marketplaces</h3>
+            
+            <p>Sense-Maker can power data marketplaces with user-controlled data:</p>
+            
+            <ul>
+                <li>Monetization of personal and organizational data</li>
+                <li>Fine-grained access control for data consumers</li>
+                <li>Usage-based pricing through micropayment streams</li>
+                <li>Community governance of marketplace rules</li>
+                <li>Transparent revenue distribution to data providers</li>
+            </ul>
+            
+            <p>This creates a more equitable data economy where data producers maintain control and receive fair compensation.</p>
+
+            <h2>Getting Help</h2>
+            
+            <h3>Documentation and Tutorials</h3>
+            
+            <p>Comprehensive documentation and tutorials are available:</p>
+            
+            <ul>
+                <li><a href="https://sense-proto.org/docs/sense-maker">Sense-Maker Documentation</a></li>
+                <li><a href="https://sense-proto.org/tutorials">Video Tutorials</a></li>
+                <li><a href="https://sense-proto.org/examples">Example Projects</a></li>
+                <li><a href="https://sense-proto.org/api">API Documentation</a></li>
+            </ul>
+
+            <h3>Community Support</h3>
+            
+            <p>Get help from the Sense-Proto community:</p>
+            
+            <ul>
+                <li><a href="https://discord.gg/sense-proto">Discord Community</a></li>
+                <li><a href="https://forum.sense-proto.org">Community Forum</a></li>
+                <li><a href="https://github.com/sense-proto/sense-maker/issues">GitHub Issues</a></li>
+                <li><a href="https://twitter.com/senseproto">Twitter/X Community</a></li>
+            </ul>
+
+            <h3>Professional Services</h3>
+            
+            <p>For enterprise users, professional services are available:</p>
+            
+            <ul>
+                <li><a href="https://sense-proto.org/enterprise">Enterprise Support</a></li>
+                <li><a href="https://sense-proto.org/consulting">Implementation Consulting</a></li>
+                <li><a href="https://sense-proto.org/training">Custom Training</a></li>
+            </ul>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Ready to get started with Sense-Maker? Check out the <a href="quickstart.html">Quickstart Guide</a> for a hands-on introduction to the Sense-Proto ecosystem.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Decentralized Data with Ecash Memecoins. <a href="https://solidproject.org/" target="_blank">Solid Project</a> | <a href="https://ecash.org/" target="_blank">Ecash</a></p>
+    </footer>
+</body>
+</html> 

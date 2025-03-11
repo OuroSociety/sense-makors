@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - Sense-Proto Documentation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/sense-proto/sense-proto" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html" class="active">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Sense-Proto vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Sense-Proto vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Authentication in Sense-Proto</h1>
+            
+            <p>Authentication is a critical component of the Sense-Proto ecosystem, enabling users to securely prove their identity and token holdings when accessing resources. Sense-Proto combines traditional authentication mechanisms with innovative token verification to create a secure and flexible system.</p>
+
+            <div class="callout">
+                <h4>Key Innovation</h4>
+                <p>Sense-Proto extends standard authentication protocols with token verification capabilities, allowing users to prove both their identity and their token holdings in a single authentication flow. This integration is powered by ecash technology with 4,000+ TPS and transaction costs as low as $0.0001.</p>
+            </div>
+
+            <h2>Authentication Protocols in Sense-Proto</h2>
+            
+            <p>Sense-Proto supports multiple authentication protocols to accommodate different use cases and security requirements:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Protocol</th>
+                        <th>Description</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WebID-TLS</td>
+                        <td>Certificate-based authentication using WebID and TLS</td>
+                        <td>High-security applications with technical users</td>
+                    </tr>
+                    <tr>
+                        <td>Solid-OIDC</td>
+                        <td>OpenID Connect-based authentication for Solid</td>
+                        <td>Web applications with standard login flows</td>
+                    </tr>
+                    <tr>
+                        <td>Token-Enhanced OIDC</td>
+                        <td>Solid-OIDC extended with token verification</td>
+                        <td>Applications requiring token-based access control</td>
+                    </tr>
+                    <tr>
+                        <td>DPoP</td>
+                        <td>Demonstrating Proof of Possession of a key</td>
+                        <td>Mobile and single-page applications</td>
+                    </tr>
+                    <tr>
+                        <td>Client Credentials</td>
+                        <td>Server-to-server authentication</td>
+                        <td>Backend services and automated processes</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p>These protocols can be used independently or in combination, providing maximum flexibility for different application architectures.</p>
+
+            <h2>WebID-TLS</h2>
+            
+            <h3>How WebID-TLS Works</h3>
+            
+            <p>WebID-TLS combines TLS client certificates with WebID to authenticate users:</p>
+            
+            <ol>
+                <li>The user generates a cryptographic key pair and obtains a certificate</li>
+                <li>The certificate contains a WebID URI that points to the user's profile</li>
+                <li>When accessing a resource, the user presents their certificate during the TLS handshake</li>
+                <li>The server verifies the certificate and retrieves the WebID profile</li>
+                <li>The server confirms that the profile references the public key in the certificate</li>
+            </ol>
+            
+            <p>This process provides strong authentication without requiring passwords.</p>
+
+            <h3>Advantages of WebID-TLS</h3>
+            
+            <ul>
+                <li>No passwords to remember or manage</li>
+                <li>Strong cryptographic security</li>
+                <li>No need for third-party identity providers</li>
+                <li>Works with standard TLS infrastructure</li>
+            </ul>
+
+            <h3>Challenges with WebID-TLS</h3>
+            
+            <ul>
+                <li>Certificate management can be complex for users</li>
+                <li>Limited browser support for client certificates</li>
+                <li>Difficult to use across multiple devices</li>
+                <li>Not user-friendly for non-technical users</li>
+            </ul>
+
+            <h2>Solid-OIDC</h2>
+            
+            <h3>How Solid-OIDC Works</h3>
+            
+            <p>Solid-OIDC is an extension of OpenID Connect (OIDC) tailored for the Solid ecosystem:</p>
+            
+            <ol>
+                <li>The user initiates login with a Solid application</li>
+                <li>The application redirects to the user's identity provider (IdP)</li>
+                <li>The user authenticates with their IdP (using passwords, biometrics, etc.)</li>
+                <li>The IdP issues tokens (ID token, access token) to the application</li>
+                <li>The application uses these tokens to access resources on behalf of the user</li>
+            </ol>
+            
+            <p>Solid-OIDC adds specific claims and scopes to standard OIDC to support Solid's requirements.</p>
+
+            <h3>Advantages of Solid-OIDC</h3>
+            
+            <ul>
+                <li>Familiar login experience for users</li>
+                <li>Works well across multiple devices</li>
+                <li>Supports various authentication factors (passwords, biometrics, etc.)</li>
+                <li>Built on widely-adopted standards</li>
+                <li>Supports single sign-on (SSO)</li>
+            </ul>
+
+            <h3>Key Components of Solid-OIDC</h3>
+            
+            <ul>
+                <li><strong>ID Token</strong>: Contains claims about the user's identity</li>
+                <li><strong>Access Token</strong>: Grants access to protected resources</li>
+                <li><strong>WebID Claim</strong>: Links the tokens to the user's WebID</li>
+                <li><strong>DPoP Proof</strong>: Prevents token theft and replay attacks</li>
+            </ul>
+
+            <h2>Token-Enhanced OIDC</h2>
+            
+            <h3>How Token-Enhanced OIDC Works</h3>
+            
+            <p>Sense-Proto extends Solid-OIDC with token verification capabilities:</p>
+            
+            <ol>
+                <li>The standard Solid-OIDC flow is followed for basic authentication</li>
+                <li>During authentication, the user also proves ownership of their wallet</li>
+                <li>The IdP verifies the user's token holdings and includes this information in the tokens</li>
+                <li>Resource servers can verify both identity and token holdings from the tokens</li>
+                <li>For micropayments, a payment channel is established alongside authentication</li>
+            </ol>
+            
+            <p>This integration allows for seamless token-based access control without requiring separate verification steps.</p>
+
+            <h3>Token Verification Process</h3>
+            
+            <p>Token verification in Sense-Proto involves several steps:</p>
+            
+            <ol>
+                <li>The user links their wallet address to their WebID profile</li>
+                <li>During authentication, the user signs a challenge with their wallet's private key</li>
+                <li>The IdP verifies the signature and checks the user's token holdings</li>
+                <li>Token holdings are included as claims in the issued tokens</li>
+                <li>Resource servers can verify these claims when making access control decisions</li>
+            </ol>
+            
+            <p>For frequently changing token balances, the system can use real-time verification instead of token claims.</p>
+
+            <h3>Micropayment Authentication</h3>
+            
+            <p>For resources requiring micropayments, Sense-Proto extends the authentication flow:</p>
+            
+            <ol>
+                <li>After standard authentication, the client discovers payment requirements</li>
+                <li>The client establishes a payment channel with the resource owner</li>
+                <li>Initial payment proof is included with resource requests</li>
+                <li>For ongoing access, the client sends periodic micropayments</li>
+                <li>Each payment generates a new access token for continued access</li>
+            </ol>
+            
+            <p>This process is made practical by ecash's high throughput (4,000+ TPS) and low transaction costs ($0.0001-$0.001).</p>
+
+            <h2>DPoP (Demonstrating Proof of Possession)</h2>
+            
+            <h3>How DPoP Works</h3>
+            
+            <p>DPoP is a security mechanism that prevents token theft and misuse:</p>
+            
+            <ol>
+                <li>The client generates a public/private key pair</li>
+                <li>When requesting tokens, the client includes a DPoP proof (a signed JWT containing the request details)</li>
+                <li>The server binds the issued tokens to the client's public key</li>
+                <li>When using the tokens, the client must include a fresh DPoP proof with each request</li>
+                <li>The server verifies that the proof was signed with the key bound to the token</li>
+            </ol>
+            
+            <p>This ensures that only the original client can use the tokens, even if they are intercepted.</p>
+
+            <h3>DPoP in Sense-Proto</h3>
+            
+            <p>Sense-Proto uses DPoP to secure both identity-based and token-based authentication:</p>
+            
+            <ul>
+                <li>Standard DPoP secures identity tokens</li>
+                <li>Extended DPoP includes token verification proofs</li>
+                <li>Micropayment channels use DPoP for secure payment verification</li>
+            </ul>
+            
+            <p>This integration provides strong security for all authentication flows.</p>
+
+            <h2>Client Credentials</h2>
+            
+            <h3>How Client Credentials Work</h3>
+            
+            <p>Client Credentials is an OAuth 2.0 flow for server-to-server authentication:</p>
+            
+            <ol>
+                <li>A client (server or service) is registered with an authorization server</li>
+                <li>The client is issued a client ID and secret</li>
+                <li>To authenticate, the client sends its credentials to the token endpoint</li>
+                <li>The server verifies the credentials and issues an access token</li>
+                <li>The client uses this token to access resources</li>
+            </ol>
+            
+            <p>This flow is used when a client needs to access resources on its own behalf, not on behalf of a user.</p>
+
+            <h3>Client Credentials in Sense-Proto</h3>
+            
+            <p>Sense-Proto extends Client Credentials with token verification for server-to-server scenarios:</p>
+            
+            <ul>
+                <li>Servers can authenticate with both client credentials and token proofs</li>
+                <li>Service-to-service micropayments can be established</li>
+                <li>Automated processes can access token-gated resources</li>
+            </ul>
+            
+            <p>This enables complex backend architectures with token-based access control.</p>
+
+            <h2>User Login Flow Example</h2>
+            
+            <p>Here's a typical user login flow in a Sense-Proto application:</p>
+            
+            <ol>
+                <li>User visits a Sense-Proto application and clicks "Log In"</li>
+                <li>User enters their WebID or selects their identity provider</li>
+                <li>Application redirects to the identity provider</li>
+                <li>User authenticates with their identity provider</li>
+                <li>If token verification is needed, user is prompted to connect their wallet</li>
+                <li>User signs a challenge with their wallet to prove ownership</li>
+                <li>Identity provider issues tokens with identity and token verification claims</li>
+                <li>Application receives tokens and redirects back to the application</li>
+                <li>Application uses tokens to access resources on behalf of the user</li>
+                <li>For micropayment resources, application establishes payment channels as needed</li>
+            </ol>
+            
+            <div class="callout">
+                <h4>User Experience</h4>
+                <p>Despite the complex underlying technology, the user experience can be streamlined to feel similar to standard social login flows, with the addition of a wallet connection step when needed.</p>
+            </div>
+
+            <h2>Implementation</h2>
+            
+            <h3>Client-Side Implementation</h3>
+            
+            <p>Here's how to implement authentication in a client application:</p>
+            
+            <pre><code>// Authentication in a web application
+import { login, handleIncomingRedirect, getDefaultSession } from '@sense-proto/auth-client';
+import { connectWallet, signChallenge } from '@sense-proto/wallet';
+
+// Login button handler
+async function handleLogin() {
+  // Get the user's WebID or identity provider
+  const idp = document.getElementById('idp-input').value;
+  
+  // Start the login process
+  await login({
+    oidcIssuer: idp,
+    redirectUrl: window.location.href,
+    clientName: 'My Sense-Proto App',
+    tokenVerification: true // Enable token verification
+  });
+  
+  // The browser will redirect to the identity provider
+}
+
+// Handle redirect from identity provider
+async function handleRedirect() {
+  // Process the incoming redirect
+  const session = await handleIncomingRedirect();
+  
+  if (session.info.isLoggedIn) {
+    // User is logged in
+    displayUserInfo(session);
+    
+    // If token verification is needed, connect wallet
+    if (session.info.tokenVerificationRequired) {
+      await connectWalletAndVerify(session);
+    }
+  }
+}
+
+// Connect wallet and verify token holdings
+async function connectWalletAndVerify(session) {
+  // Connect to the user's wallet
+  const wallet = await connectWallet();
+  
+  // Get the challenge from the session
+  const challenge = session.info.tokenChallenge;
+  
+  // Sign the challenge with the wallet
+  const signature = await signChallenge(wallet, challenge);
+  
+  // Verify the signature and token holdings
+  await session.verifyTokenHoldings(signature);
+}
+
+// Check if we're returning from a redirect
+window.addEventListener('DOMContentLoaded', handleRedirect);</code></pre>
+
+            <h3>Server-Side Implementation</h3>
+            
+            <p>Here's how to implement authentication validation in a server:</p>
+            
+            <pre><code>// Authentication validation in a Node.js server
+import { createSolidTokenVerifier } from '@sense-proto/auth-server';
+import express from 'express';
+
+const app = express();
+
+// Create a token verifier
+const tokenVerifier = createSolidTokenVerifier({
+  solidIdentityProviders: ['https://idp.example.org'],
+  tokenVerificationEndpoint: 'https://tokens.example.org/verify'
+});
+
+// Middleware to validate authentication
+async function authMiddleware(req, res, next) {
+  try {
+    // Get the authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('DPoP ')) {
+      return res.status(401).json({ error: 'Missing or invalid authorization header' });
+    }
+    
+    // Get the DPoP proof header
+    const dpopHeader = req.headers.dpop;
+    if (!dpopHeader) {
+      return res.status(401).json({ error: 'Missing DPoP header' });
+    }
+    
+    // Verify the tokens
+    const session = await tokenVerifier.verify(
+      authHeader.substring(5), // Remove 'DPoP ' prefix
+      dpopHeader,
+      {
+        method: req.method,
+        url: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+      }
+    );
+    
+    // Add the session to the request
+    req.session = session;
+    
+    // Check token requirements if needed
+    if (req.resource && req.resource.tokenRequirements) {
+      if (!await verifyTokenRequirements(session, req.resource.tokenRequirements)) {
+        return res.status(403).json({ error: 'Insufficient token holdings' });
+      }
+    }
+    
+    // Proceed to the next middleware
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    res.status(401).json({ error: 'Authentication failed' });
+  }
+}
+
+// Function to verify token requirements
+async function verifyTokenRequirements(session, requirements) {
+  // Check if the session has verified token holdings
+  if (!session.tokenHoldings) {
+    return false;
+  }
+  
+  // Check if the user holds the required tokens
+  for (const requirement of requirements) {
+    const holding = session.tokenHoldings.find(h => h.token === requirement.token);
+    if (!holding || holding.amount < requirement.minimumAmount) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// Apply the middleware to protected routes
+app.use('/protected', authMiddleware);
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});</code></pre>
+
+            <h2>Authentication Flows</h2>
+            
+            <h3>Authorization Code Flow</h3>
+            
+            <p>The Authorization Code Flow is the most secure flow for web applications:</p>
+            
+            <ol>
+                <li>User initiates login in the application</li>
+                <li>Application redirects to the identity provider with an authorization request</li>
+                <li>User authenticates with the identity provider</li>
+                <li>Identity provider redirects back to the application with an authorization code</li>
+                <li>Application exchanges the code for tokens using a secure backend channel</li>
+                <li>Application uses the tokens to access resources</li>
+            </ol>
+            
+            <p>This flow is recommended for applications with a backend component.</p>
+
+            <h3>Implicit Flow</h3>
+            
+            <p>The Implicit Flow is simpler but less secure:</p>
+            
+            <ol>
+                <li>User initiates login in the application</li>
+                <li>Application redirects to the identity provider with an authorization request</li>
+                <li>User authenticates with the identity provider</li>
+                <li>Identity provider redirects back to the application with tokens in the URL fragment</li>
+                <li>Application extracts the tokens from the URL and uses them to access resources</li>
+            </ol>
+            
+            <p>This flow is suitable for public clients that cannot securely store secrets.</p>
+
+            <h3>Device Flow</h3>
+            
+            <p>The Device Flow is designed for devices with limited input capabilities:</p>
+            
+            <ol>
+                <li>Device requests a device code and user code from the authorization server</li>
+                <li>Device displays the user code and a URL to the user</li>
+                <li>User visits the URL on another device and enters the code</li>
+                <li>User authenticates with the identity provider</li>
+                <li>Device polls the authorization server until authentication is complete</li>
+                <li>Device receives tokens and uses them to access resources</li>
+            </ol>
+            
+            <p>This flow is useful for IoT devices, smart TVs, and other devices with limited input capabilities.</p>
+
+            <h2>Security Considerations</h2>
+            
+            <h3>Token Management</h3>
+            
+            <p>Proper token management is essential for security:</p>
+            
+            <ul>
+                <li>Store tokens securely (e.g., in HTTP-only cookies or secure storage)</li>
+                <li>Use short expiration times for access tokens</li>
+                <li>Implement token refresh mechanisms</li>
+                <li>Revoke tokens when they are no longer needed</li>
+                <li>Use DPoP to prevent token theft and replay attacks</li>
+            </ul>
+
+            <h3>Identity Provider Security</h3>
+            
+            <p>The security of the identity provider is critical:</p>
+            
+            <ul>
+                <li>Use reputable identity providers</li>
+                <li>Implement multi-factor authentication</li>
+                <li>Keep identity provider software updated</li>
+                <li>Monitor for suspicious activity</li>
+                <li>Implement rate limiting and other anti-abuse measures</li>
+            </ul>
+
+            <h3>Wallet Security</h3>
+            
+            <p>For token verification, wallet security is important:</p>
+            
+            <ul>
+                <li>Use hardware wallets for high-value tokens</li>
+                <li>Keep wallet software updated</li>
+                <li>Use strong passwords and multi-factor authentication</li>
+                <li>Be cautious of phishing attempts</li>
+                <li>Verify transaction details before signing</li>
+            </ul>
+
+            <h2>Practical Examples</h2>
+            
+            <h3>Example 1: User Authentication in a Web App</h3>
+            
+            <pre><code>// Complete authentication flow in a React application
+import React, { useState, useEffect } from 'react';
+import { login, handleIncomingRedirect, getDefaultSession } from '@sense-proto/auth-client';
+import { connectWallet, signChallenge } from '@sense-proto/wallet';
+
+function AuthComponent() {
+  const [session, setSession] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Handle initial load and redirects
+  useEffect(() => {
+    async function handleAuth() {
+      try {
+        setIsLoading(true);
+        
+        // Check if we're returning from a redirect
+        const currentSession = await handleIncomingRedirect({
+          restorePreviousSession: true
+        });
+        
+        setSession(currentSession);
+        
+        // If logged in and token verification is required, handle it
+        if (currentSession.info.isLoggedIn && 
+            currentSession.info.tokenVerificationRequired &&
+            !currentSession.info.tokenVerificationComplete) {
+          await handleTokenVerification(currentSession);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    handleAuth();
+  }, []);
+  
+  // Handle token verification
+  async function handleTokenVerification(currentSession) {
+    try {
+      // Connect to wallet
+      const wallet = await connectWallet();
+      
+      // Sign the challenge
+      const signature = await signChallenge(wallet, currentSession.info.tokenChallenge);
+      
+      // Verify token holdings
+      await currentSession.verifyTokenHoldings(signature);
+      
+      // Update session state
+      setSession({...currentSession});
+    } catch (err) {
+      setError('Token verification failed: ' + err.message);
+    }
+  }
+  
+  // Handle login button click
+  async function handleLogin() {
+    try {
+      const idp = document.getElementById('idp-input').value;
+      
+      await login({
+        oidcIssuer: idp,
+        redirectUrl: window.location.href,
+        clientName: 'My Sense-Proto App',
+        tokenVerification: true
+      });
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  
+  // Handle logout button click
+  async function handleLogout() {
+    try {
+      await session.logout();
+      setSession(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+  
+  if (session && session.info.isLoggedIn) {
+    return (
+      <div>
+        <h2>Logged in as {session.info.webId}</h2>
+        {session.info.tokenHoldings && (
+          <div>
+            <h3>Token Holdings:</h3>
+            <ul>
+              {session.info.tokenHoldings.map(holding => (
+                <li key={holding.token}>
+                  {holding.token}: {holding.amount}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <button onClick={handleLogout}>Log Out</button>
+      </div>
+    );
+  }
+  
+  return (
+    <div>
+      <h2>Log In</h2>
+      <input id="idp-input" placeholder="Enter your Identity Provider" />
+      <button onClick={handleLogin}>Log In</button>
+    </div>
+  );
+}</code></pre>
+
+            <h3>Example 2: Server-to-Server Authentication</h3>
+            
+            <pre><code>// Server-to-server authentication with token verification
+import { ClientCredentials } from '@sense-proto/auth-server';
+import { createTokenProof } from '@sense-proto/token-client';
+
+async function authenticateService() {
+  // Create a client credentials client
+  const client = new ClientCredentials({
+    clientId: 'my-service-client-id',
+    clientSecret: 'my-service-client-secret',
+    tokenEndpoint: 'https://auth.example.org/token'
+  });
+  
+  // Get an access token
+  const tokenResponse = await client.getToken();
+  
+  // If token verification is needed, create a token proof
+  if (needsTokenVerification) {
+    const tokenProof = await createTokenProof({
+      tokenAddress: 'https://tokens.example.org/memecoins/SERVICE',
+      walletPrivateKey: process.env.SERVICE_WALLET_KEY
+    });
+    
+    // Attach the token proof to the access token
+    const enhancedToken = await client.enhanceTokenWithProof(
+      tokenResponse.access_token,
+      tokenProof
+    );
+    
+    return enhancedToken;
+  }
+  
+  return tokenResponse.access_token;
+}
+
+// Use the token to access a protected resource
+async function accessProtectedResource() {
+  const token = await authenticateService();
+  
+  const response = await fetch('https://api.example.org/protected-resource', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  
+  return response.json();
+}</code></pre>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Now that you understand authentication in Sense-Proto, learn about <a href="server-setup.html">Setting Up a Server</a> to create your own Sense-Proto infrastructure.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Decentralized Data with Ecash Memecoins. <a href="https://solidproject.org/" target="_blank">Solid Project</a> | <a href="https://ecash.org/" target="_blank">Ecash</a></p>
+    </footer>
+</body>
+</html> 

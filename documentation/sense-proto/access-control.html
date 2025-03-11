@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Control - Sense-Proto Documentation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/sense-proto/sense-proto" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html" class="active">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Sense-Proto vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Sense-Proto vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Access Control in Sense-Proto</h1>
+            
+            <p>Access control is a fundamental aspect of Sense-Proto that determines who can access what resources and what actions they can perform. Sense-Proto combines traditional access control mechanisms with innovative token-based economics to create a powerful and flexible system for managing data access.</p>
+
+            <div class="callout">
+                <h4>Key Innovation</h4>
+                <p>Sense-Proto's access control system integrates high-performance ecash technology (4,000+ TPS at fractions of a cent per transaction) with semantic data permissions, enabling economic models for data access that would be impractical on traditional blockchain systems.</p>
+            </div>
+
+            <h2>Access Control Systems in Sense-Proto</h2>
+            
+            <p>Sense-Proto supports two complementary access control systems:</p>
+            
+            <ol>
+                <li><strong>Web Access Control (WAC)</strong>: A decentralized access control system based on the Solid protocol that uses RDF to define access permissions.</li>
+                <li><strong>Token-Based Access Control (TBAC)</strong>: Sense-Proto's extension that integrates ecash memecoin functionality for economic access models.</li>
+            </ol>
+            
+            <p>These systems can be used independently or in combination, providing maximum flexibility for different use cases.</p>
+
+            <h2>Web Access Control (WAC) Basics</h2>
+            
+            <h3>Core Concepts</h3>
+            
+            <p>WAC is a decentralized access control system that uses RDF to define who has what kind of access to which resources. Key concepts include:</p>
+            
+            <ul>
+                <li><strong>Access Control List (ACL)</strong>: A resource that defines access permissions for a specific resource or container.</li>
+                <li><strong>Authorization</strong>: A statement that grants specific access modes to specific agents.</li>
+                <li><strong>Agent</strong>: An entity (individual, group, or public) that can be granted access.</li>
+                <li><strong>Access Mode</strong>: The type of access granted (read, write, append, control).</li>
+            </ul>
+
+            <h3>Access Modes</h3>
+            
+            <p>WAC defines four primary access modes:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mode</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>acl:Read</code></td>
+                        <td>Permission to read a resource</td>
+                    </tr>
+                    <tr>
+                        <td><code>acl:Write</code></td>
+                        <td>Permission to modify a resource</td>
+                    </tr>
+                    <tr>
+                        <td><code>acl:Append</code></td>
+                        <td>Permission to add data to a resource but not modify existing data</td>
+                    </tr>
+                    <tr>
+                        <td><code>acl:Control</code></td>
+                        <td>Permission to modify the ACL for a resource</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Agent Types</h3>
+            
+            <p>WAC supports several types of agents that can be granted access:</p>
+            
+            <ul>
+                <li><strong>Individual Agents</strong>: Specific WebIDs</li>
+                <li><strong>Groups</strong>: Collections of WebIDs</li>
+                <li><strong>Public</strong>: Anyone, authenticated or not</li>
+                <li><strong>Authenticated Agents</strong>: Anyone with a valid WebID</li>
+            </ul>
+
+            <h3>ACL Document Structure</h3>
+            
+            <p>An ACL document is an RDF document that defines access permissions. Here's a simple example:</p>
+            
+            <pre><code># ACL resource for a document
+@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+
+&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://alice.example.org/profile/card#me&gt;;
+    acl:accessTo &lt;/documents/report.ttl&gt;;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+&lt;#team&gt;
+    a acl:Authorization;
+    acl:agentGroup &lt;https://team.example.org/groups/project-x#team&gt;;
+    acl:accessTo &lt;/documents/report.ttl&gt;;
+    acl:mode acl:Read.
+
+&lt;#public&gt;
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;
+    acl:accessTo &lt;/documents/report.ttl&gt;;
+    acl:mode acl:Read.</code></pre>
+
+            <h2>Token-Based Access Control (TBAC)</h2>
+            
+            <p>Sense-Proto extends WAC with Token-Based Access Control, which integrates ecash memecoin functionality to enable economic models for data access.</p>
+            
+            <div class="callout">
+                <h4>Performance Advantage</h4>
+                <p>Sense-Proto's ecash technology enables 4,000+ transactions per second at costs of $0.0001-$0.001 per transaction, making micropayment-based access control practical at scale.</p>
+            </div>
+
+            <h3>Core Concepts</h3>
+            
+            <p>TBAC introduces several new concepts to the access control system:</p>
+            
+            <ul>
+                <li><strong>Token Requirement</strong>: A condition that requires an agent to hold a specific token to access a resource.</li>
+                <li><strong>Micropayment Stream</strong>: Continuous tiny payments for ongoing access to a resource.</li>
+                <li><strong>Time-Limited Access</strong>: Access that expires after a specific time period or when token holdings change.</li>
+                <li><strong>Economic Conditions</strong>: Programmable conditions based on token economics.</li>
+            </ul>
+
+            <h3>TBAC Extensions to WAC</h3>
+            
+            <p>TBAC extends the WAC vocabulary with new predicates:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Predicate</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>token:requiresToken</code></td>
+                        <td>Specifies a token that must be held to access the resource</td>
+                    </tr>
+                    <tr>
+                        <td><code>token:minimumAmount</code></td>
+                        <td>Minimum amount of tokens required</td>
+                    </tr>
+                    <tr>
+                        <td><code>token:paymentStream</code></td>
+                        <td>Amount to pay per interval for continuous access</td>
+                    </tr>
+                    <tr>
+                        <td><code>token:paymentInterval</code></td>
+                        <td>Time interval (in seconds) between micropayments</td>
+                    </tr>
+                    <tr>
+                        <td><code>token:expiresAfter</code></td>
+                        <td>Time period after which access expires</td>
+                    </tr>
+                    <tr>
+                        <td><code>token:recipient</code></td>
+                        <td>WebID of the payment recipient</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>TBAC Document Example</h3>
+            
+            <p>Here's an example of a TBAC-enhanced ACL document:</p>
+            
+            <pre><code># Token-based ACL resource
+@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+@prefix token: &lt;http://sense-proto.org/ns/token#&gt;.
+
+&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://alice.example.org/profile/card#me&gt;;
+    acl:accessTo &lt;/premium/content.ttl&gt;;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+&lt;#tokenHolders&gt;
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/SENSE&gt;;
+    token:minimumAmount "100"^^xsd:decimal;
+    acl:accessTo &lt;/premium/content.ttl&gt;;
+    acl:mode acl:Read.
+
+&lt;#subscribers&gt;
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/SENSE&gt;;
+    token:paymentStream "0.01"^^xsd:decimal;
+    token:paymentInterval "3600"^^xsd:integer;
+    token:recipient &lt;https://alice.example.org/profile/card#me&gt;;
+    acl:accessTo &lt;/premium/content.ttl&gt;;
+    acl:mode acl:Read.</code></pre>
+
+            <h2>Micropayment Streams</h2>
+            
+            <p>One of the most powerful features of Sense-Proto's TBAC is the ability to create micropayment streams for continuous access to resources. This is made possible by the high throughput and low cost of ecash transactions.</p>
+            
+            <h3>How Micropayment Streams Work</h3>
+            
+            <ol>
+                <li>A user requests access to a resource that requires micropayments</li>
+                <li>The client establishes a payment channel with the resource owner</li>
+                <li>Tiny payments (as low as $0.0001) are sent at regular intervals</li>
+                <li>Access continues as long as payments are maintained</li>
+                <li>Either party can close the channel at any time</li>
+            </ol>
+            
+            <div class="callout">
+                <h4>Technical Implementation</h4>
+                <p>Micropayment streams in Sense-Proto are implemented using ecash payment channels, which allow for thousands of off-chain transactions to be settled periodically on-chain, dramatically reducing costs and increasing throughput.</p>
+            </div>
+
+            <h3>Client-Side Implementation</h3>
+            
+            <p>Here's how to implement micropayment streams in a client application:</p>
+            
+            <pre><code>// Setting up a micropayment stream
+import { senseProto } from '@sense-proto/client';
+import { setupPaymentStream } from '@sense-proto/ecash';
+
+async function accessPremiumContent(resourceUrl) {
+  // Check access requirements
+  const accessRequirements = await senseProto.getAccessRequirements(resourceUrl);
+  
+  if (accessRequirements.micropaymentStream) {
+    // Set up payment stream
+    const stream = await setupPaymentStream({
+      recipient: accessRequirements.recipient,
+      tokenAddress: accessRequirements.tokenAddress,
+      amount: accessRequirements.paymentStream,
+      interval: accessRequirements.paymentInterval,
+      maxTotal: 5.0 // Maximum total payment
+    });
+    
+    // Start the stream
+    await stream.start();
+    
+    // Get access token
+    const accessToken = await stream.getAccessToken();
+    
+    // Access the resource
+    const resource = await senseProto.getResource(resourceUrl, { accessToken });
+    
+    // When done, stop the stream
+    await stream.stop();
+    
+    return resource;
+  }
+  
+  // Fall back to standard access
+  return senseProto.getResource(resourceUrl);
+}</code></pre>
+
+            <h2>Managing Access Control</h2>
+            
+            <h3>Setting Up Access Control</h3>
+            
+            <p>To set up access control for a resource in Sense-Proto:</p>
+            
+            <ol>
+                <li>Create an ACL resource for your data resource</li>
+                <li>Define standard WAC permissions as needed</li>
+                <li>Add token requirements or micropayment streams as needed</li>
+                <li>Link the ACL resource to your data resource</li>
+            </ol>
+
+            <h3>Tools for Managing Access</h3>
+            
+            <p>Sense-Proto provides several tools for managing access control:</p>
+            
+            <ul>
+                <li><strong>Sense-Maker</strong>: A graphical tool for managing token-based access control</li>
+                <li><strong>Command-line tools</strong>: For scripting and automation</li>
+                <li><strong>JavaScript libraries</strong>: For programmatic access control management</li>
+                <li><strong>RESTful APIs</strong>: For integration with other systems</li>
+            </ul>
+
+            <h3>Common Access Patterns</h3>
+            
+            <p>Here are some common access patterns in Sense-Proto:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Token-gated community</td>
+                        <td>Require a minimum token holding for access to community resources</td>
+                    </tr>
+                    <tr>
+                        <td>Pay-per-view content</td>
+                        <td>Require a one-time micropayment for access to premium content</td>
+                    </tr>
+                    <tr>
+                        <td>Subscription service</td>
+                        <td>Set up a micropayment stream for ongoing access to a service</td>
+                    </tr>
+                    <tr>
+                        <td>Tiered access</td>
+                        <td>Different token requirements for different levels of access</td>
+                    </tr>
+                    <tr>
+                        <td>Time-limited access</td>
+                        <td>Access that expires after a specific time period</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Inheritance and Propagation</h3>
+            
+            <p>Access control settings can be inherited and propagated in Sense-Proto:</p>
+            
+            <ul>
+                <li><strong>Default ACLs</strong>: Apply to all resources in a container unless overridden</li>
+                <li><strong>Inherited permissions</strong>: Resources can inherit permissions from their parent containers</li>
+                <li><strong>Propagation rules</strong>: Changes to ACLs can be propagated to child resources</li>
+            </ul>
+
+            <h2>Security Considerations</h2>
+            
+            <h3>Principle of Least Privilege</h3>
+            
+            <p>Always grant the minimum level of access necessary for a user to perform their tasks. This reduces the potential impact of security breaches.</p>
+
+            <h3>Common Pitfalls</h3>
+            
+            <ul>
+                <li><strong>Overly permissive ACLs</strong>: Granting more access than necessary</li>
+                <li><strong>Insufficient token requirements</strong>: Setting token thresholds too low</li>
+                <li><strong>Neglecting to update ACLs</strong>: Failing to revoke access when no longer needed</li>
+                <li><strong>Ignoring inheritance</strong>: Not considering how permissions propagate</li>
+            </ul>
+
+            <h3>Auditing and Monitoring</h3>
+            
+            <p>Regularly audit and monitor access to your resources:</p>
+            
+            <ul>
+                <li>Review ACL settings periodically</li>
+                <li>Monitor access logs for suspicious activity</li>
+                <li>Track token-based access patterns</li>
+                <li>Set up alerts for unusual access patterns</li>
+            </ul>
+
+            <h2>Practical Examples</h2>
+            
+            <h3>Example 1: Personal Journal with Token-Gated Access</h3>
+            
+            <pre><code># ACL for a personal journal
+@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+@prefix token: &lt;http://sense-proto.org/ns/token#&gt;.
+
+&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://alice.example.org/profile/card#me&gt;;
+    acl:accessTo &lt;/journal/&gt;;
+    acl:default &lt;/journal/&gt;;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+&lt;#friends&gt;
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/FRIEND&gt;;
+    token:minimumAmount "1"^^xsd:decimal;
+    acl:accessTo &lt;/journal/&gt;;
+    acl:default &lt;/journal/&gt;;
+    acl:mode acl:Read.</code></pre>
+            
+            <p>In this example, Alice has full control over her journal, and anyone holding at least 1 FRIEND token can read it.</p>
+
+            <h3>Example 2: Collaborative Project with Micropayments</h3>
+            
+            <pre><code># ACL for a collaborative project
+@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+@prefix token: &lt;http://sense-proto.org/ns/token#&gt;.
+
+&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://bob.example.org/profile/card#me&gt;;
+    acl:accessTo &lt;/projects/research/&gt;;
+    acl:default &lt;/projects/research/&gt;;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+&lt;#contributors&gt;
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/RESEARCH&gt;;
+    token:minimumAmount "50"^^xsd:decimal;
+    acl:accessTo &lt;/projects/research/&gt;;
+    acl:default &lt;/projects/research/&gt;;
+    acl:mode acl:Read, acl:Write.
+
+&lt;#readers&gt;
+    a acl:Authorization;
+    acl:agentClass acl:AuthenticatedAgent;
+    token:paymentStream "0.001"^^xsd:decimal;
+    token:paymentInterval "3600"^^xsd:integer;
+    token:recipient &lt;https://bob.example.org/profile/card#me&gt;;
+    acl:accessTo &lt;/projects/research/&gt;;
+    acl:default &lt;/projects/research/&gt;;
+    acl:mode acl:Read.</code></pre>
+            
+            <p>In this example, Bob has full control over the research project, contributors holding at least 50 RESEARCH tokens can read and write, and anyone else can read by setting up a micropayment stream of 0.001 tokens per hour.</p>
+
+            <h3>Example 3: Time-Limited Access Using ACP</h3>
+            
+            <pre><code># Access Control Policy with time-limited access
+@prefix acp: &lt;http://www.w3.org/ns/solid/acp#&gt;.
+@prefix token: &lt;http://sense-proto.org/ns/token#&gt;.
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
+
+&lt;#policy&gt;
+    a acp:Policy;
+    acp:allow acp:Read;
+    acp:anyOf &lt;#tokenMatcher&gt;;
+    acp:allOf &lt;#timeMatcher&gt;.
+
+&lt;#tokenMatcher&gt;
+    a acp:Matcher;
+    token:requiresToken &lt;https://tokens.example.org/memecoins/EVENT&gt;;
+    token:minimumAmount "10"^^xsd:decimal.
+
+&lt;#timeMatcher&gt;
+    a acp:Matcher;
+    acp:startTime "2023-06-01T00:00:00Z"^^xsd:dateTime;
+    acp:endTime "2023-06-30T23:59:59Z"^^xsd:dateTime.</code></pre>
+            
+            <p>In this example, access is granted to holders of at least 10 EVENT tokens, but only during the month of June 2023.</p>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Now that you understand access control in Sense-Proto, learn about <a href="authentication.html">Authentication</a> to see how users prove their identity and token holdings.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Decentralized Data with Ecash Memecoins. <a href="https://solidproject.org/" target="_blank">Solid Project</a> | <a href="https://ecash.org/" target="_blank">Ecash</a></p>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebID - Solid Documentation | Sense-Proto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/solid/solid" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html" class="active">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Solid vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Solid vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>WebID</h1>
+            
+            <p>WebID is a decentralized digital identity system that serves as the cornerstone of authentication in Solid. It's essentially a URI (Uniform Resource Identifier) that uniquely identifies a person, organization, or entity on the web.</p>
+
+            <div class="callout">
+                <h4>What is a WebID?</h4>
+                <p>A WebID is a URI that uniquely identifies you on the web and points to a profile document containing information about you. It enables decentralized authentication and serves as your digital identity across the Solid ecosystem.</p>
+            </div>
+
+            <h2>WebID Structure</h2>
+            
+            <p>A WebID is a URI that typically looks like this:</p>
+            
+            <pre><code>https://alice.solidpod.example/profile#me</code></pre>
+            
+            <p>This URI points to a specific location in a Solid Pod where a profile document containing identity information is stored. The fragment identifier <code>#me</code> refers to a specific resource within that document that represents the person.</p>
+
+            <h2>Technical Implementation Details</h2>
+
+            <h3>1. Profile Document</h3>
+            
+            <p>The WebID URI resolves to an RDF document that contains:</p>
+            
+            <ul>
+                <li>Basic identity information (name, email, etc.)</li>
+                <li>Public keys for authentication</li>
+                <li>Links to other resources owned by the identity</li>
+                <li>Social connections</li>
+                <li>Preferences and settings</li>
+            </ul>
+            
+            <p>This document is typically written in Turtle (a serialization format for RDF) and might look like:</p>
+            
+            <pre><code>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt;.
+@prefix cert: &lt;http://www.w3.org/ns/auth/cert#&gt;.
+
+&lt;#me&gt;
+    a foaf:Person;
+    foaf:name "Alice Smith";
+    foaf:mbox &lt;mailto:alice@example.org&gt;;
+    cert:key [
+        a cert:RSAPublicKey;
+        cert:modulus "00cb24...fa791"^^xsd:hexBinary;
+        cert:exponent "65537"^^xsd:integer
+    ].</code></pre>
+
+            <h3>2. Authentication Process</h3>
+            
+            <p>When authenticating with a Solid application:</p>
+            
+            <ol>
+                <li><strong>Discovery</strong>: The application discovers the user's WebID by asking them to enter it or through discovery mechanisms like WebFinger.</li>
+                <li><strong>Challenge-Response</strong>: The application sends a cryptographic challenge to the user's client.</li>
+                <li><strong>Certificate Validation</strong>:
+                    <ul>
+                        <li>For TLS authentication: The client presents a certificate containing the WebID</li>
+                        <li>For alternative methods: The client signs the challenge with the private key corresponding to the public key in the WebID profile</li>
+                    </ul>
+                </li>
+                <li><strong>Verification</strong>: The application verifies the signature using the public key from the WebID profile document.</li>
+                <li><strong>Session Creation</strong>: Upon successful verification, a session is established, typically using tokens like JWT (JSON Web Tokens).</li>
+            </ol>
+
+            <h3>3. Delegation and Cross-Pod Authorization</h3>
+            
+            <p>WebID supports delegation, allowing users to authorize applications to access their data:</p>
+            
+            <ol>
+                <li>The user authenticates to an application using their WebID.</li>
+                <li>The application requests specific permissions.</li>
+                <li>The user grants these permissions, which are stored in their Pod as Access Control Lists (ACLs).</li>
+                <li>The application receives tokens that allow it to access the specified resources.</li>
+            </ol>
+
+            <h3>4. Federation and Trust</h3>
+            
+            <p>WebIDs support a web of trust model:</p>
+            
+            <ul>
+                <li>Users can vouch for other WebIDs by linking to them in their profile.</li>
+                <li>Trust can be calculated based on these connections.</li>
+                <li>WebIDs from different providers can interact seamlessly.</li>
+            </ul>
+
+            <h2>Authentication Protocols</h2>
+
+            <p>There are several authentication protocols that work with WebID:</p>
+
+            <h3>WebID-TLS</h3>
+            
+            <p>WebID-TLS uses TLS client certificates for authentication. The process works as follows:</p>
+            
+            <ol>
+                <li>The user generates a cryptographic key pair and obtains a certificate containing their WebID.</li>
+                <li>When accessing a Solid server, the browser presents this certificate during the TLS handshake.</li>
+                <li>The server extracts the WebID from the certificate.</li>
+                <li>The server retrieves the WebID profile document and verifies that it contains the public key from the certificate.</li>
+                <li>If the verification succeeds, the user is authenticated.</li>
+            </ol>
+
+            <div class="callout">
+                <h4>TLS Certificate</h4>
+                <p>A TLS (Transport Layer Security) certificate is a digital certificate that authenticates a website's identity and enables an encrypted connection. In WebID-TLS, client certificates are used to prove the user's identity to the server.</p>
+            </div>
+
+            <h3>WebID-OIDC</h3>
+            
+            <p>WebID-OIDC extends OpenID Connect for WebID authentication:</p>
+            
+            <ol>
+                <li>The user authenticates with an OpenID Provider (OP) that supports WebID-OIDC.</li>
+                <li>The OP issues an ID token containing the user's WebID.</li>
+                <li>The application verifies the ID token and extracts the WebID.</li>
+                <li>The application can then access resources on behalf of the user using the ID token.</li>
+            </ol>
+
+            <div class="callout">
+                <h4>OpenID Connect (OIDC)</h4>
+                <p>OpenID Connect is a modern authentication protocol built on top of OAuth 2.0 that enables clients to verify the identity of end-users. It adds an identity layer to OAuth 2.0, providing information about the authenticated user.</p>
+            </div>
+
+            <h3>Solid-OIDC</h3>
+            
+            <p>Solid-OIDC is a specialized version of OIDC for Solid ecosystems:</p>
+            
+            <ol>
+                <li>It extends WebID-OIDC with additional features specific to Solid.</li>
+                <li>It includes mechanisms for requesting and granting access to specific resources in Pods.</li>
+                <li>It supports DPoP (Demonstrating Proof of Possession) tokens for enhanced security.</li>
+            </ol>
+
+            <h2>Creating and Managing a WebID</h2>
+
+            <h3>Creating a WebID</h3>
+            
+            <p>There are several ways to create a WebID:</p>
+            
+            <ol>
+                <li><strong>Through a Solid Pod Provider</strong>: When you sign up with a Solid Pod provider, they typically create a WebID for you automatically.</li>
+                <li><strong>Self-Hosting</strong>: If you run your own Solid server, you can create a WebID by setting up a profile document.</li>
+                <li><strong>Using a WebID Generator</strong>: Some tools allow you to generate a WebID and associated profile document.</li>
+            </ol>
+
+            <h3>Managing Your WebID Profile</h3>
+            
+            <p>You can manage your WebID profile by:</p>
+            
+            <ul>
+                <li>Using a profile editor provided by your Pod provider</li>
+                <li>Directly editing the RDF document (if you're comfortable with RDF)</li>
+                <li>Using Solid applications designed for profile management</li>
+            </ul>
+
+            <h3>Multiple WebIDs</h3>
+            
+            <p>You can have multiple WebIDs for different contexts:</p>
+            
+            <ul>
+                <li>A professional WebID for work-related activities</li>
+                <li>A personal WebID for social interactions</li>
+                <li>Specialized WebIDs for specific communities or purposes</li>
+            </ul>
+            
+            <p>These WebIDs can be linked together in your profile if you choose to disclose those connections.</p>
+
+            <h2>WebID in Practice</h2>
+
+            <h3>Example: Authentication Flow</h3>
+            
+            <p>Here's a simplified example of how WebID authentication works in practice:</p>
+            
+            <ol>
+                <li>Alice visits a Solid application and is prompted to log in.</li>
+                <li>She enters her WebID: <code>https://alice.solidpod.example/profile#me</code></li>
+                <li>The application redirects her to her identity provider for authentication.</li>
+                <li>After authenticating, her identity provider issues a token containing her WebID.</li>
+                <li>The application verifies the token and grants her access.</li>
+                <li>When Alice wants to access her data, the application includes the token in its requests to her Pod.</li>
+                <li>Her Pod server verifies the token and checks access permissions before responding.</li>
+            </ol>
+
+            <h3>Security Considerations</h3>
+            
+            <p>When working with WebID, keep these security considerations in mind:</p>
+            
+            <ul>
+                <li>Protect your private keys carefully</li>
+                <li>Use strong authentication methods</li>
+                <li>Be cautious about which applications you authorize</li>
+                <li>Regularly review and update your access control settings</li>
+                <li>Consider using different WebIDs for different contexts to compartmentalize your online identity</li>
+            </ul>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Now that you understand WebID, learn about <a href="pods.html">Pods</a> to see how your data is stored and managed in the Solid ecosystem.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Documentation for Solid. <a href="https://solidproject.org/" target="_blank">Solid Project</a></p>
+    </footer>
+</body>
+</html> 

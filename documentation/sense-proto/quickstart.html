@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quickstart - Solid Documentation | Sense-Proto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/solid/solid" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html" class="active">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Solid vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Solid vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Solid Quickstart Guide</h1>
+            
+            <p>This quickstart guide will help you get up and running with Solid quickly. You'll learn how to create a Pod, interact with it, and build a simple Solid application.</p>
+
+            <div class="callout">
+                <h4>Prerequisites</h4>
+                <p>Basic knowledge of web development (HTML, CSS, JavaScript) and familiarity with command-line tools will be helpful for this guide.</p>
+            </div>
+
+            <h2>Step 1: Create a Solid Pod</h2>
+            
+            <p>The first step is to create your own Solid Pod, which will store your data:</p>
+            
+            <ol>
+                <li>Choose a Pod provider:
+                    <ul>
+                        <li><a href="https://solidcommunity.net/register" target="_blank">solidcommunity.net</a></li>
+                        <li><a href="https://inrupt.net/register" target="_blank">inrupt.net</a></li>
+                        <li><a href="https://solidweb.org/register" target="_blank">solidweb.org</a></li>
+                    </ul>
+                </li>
+                <li>Register for an account by providing a username and password</li>
+                <li>Complete the registration process to create your Pod</li>
+                <li>Note your WebID, which will look something like <code>https://yourusername.solidcommunity.net/profile/card#me</code></li>
+            </ol>
+            
+            <p>Your Pod is now created and ready to use! Your WebID serves as your identity in the Solid ecosystem.</p>
+
+            <h2>Step 2: Explore Your Pod</h2>
+            
+            <p>Let's explore your new Pod to understand its structure:</p>
+            
+            <ol>
+                <li>Log in to your Pod provider's website</li>
+                <li>Navigate to your Pod's dashboard or file browser</li>
+                <li>Explore the default folders and files:
+                    <ul>
+                        <li><code>/profile/</code>: Contains your WebID profile</li>
+                        <li><code>/inbox/</code>: For receiving notifications</li>
+                        <li><code>/public/</code>: For publicly accessible data</li>
+                        <li><code>/private/</code>: For private data</li>
+                    </ul>
+                </li>
+                <li>Try creating a new folder or uploading a file to get familiar with the interface</li>
+            </ol>
+            
+            <p>This exploration helps you understand how data is organized in your Pod.</p>
+
+            <h2>Step 3: Set Up Your Development Environment</h2>
+            
+            <p>Now, let's set up a development environment to build Solid applications:</p>
+            
+            <ol>
+                <li>Make sure you have Node.js installed (version 14 or later)</li>
+                <li>Create a new directory for your project:
+                    <pre><code>mkdir my-solid-app
+cd my-solid-app</code></pre>
+                </li>
+                <li>Initialize a new Node.js project:
+                    <pre><code>npm init -y</code></pre>
+                </li>
+                <li>Install the Solid client libraries:
+                    <pre><code>npm install @inrupt/solid-client @inrupt/solid-client-authn-browser</code></pre>
+                </li>
+                <li>Install development tools:
+                    <pre><code>npm install webpack webpack-cli webpack-dev-server html-webpack-plugin --save-dev</code></pre>
+                </li>
+            </ol>
+            
+            <p>Your development environment is now ready for building Solid applications.</p>
+
+            <h2>Step 4: Create a Simple Solid Application</h2>
+            
+            <p>Let's create a simple application that authenticates with your Pod and displays your profile information:</p>
+            
+            <ol>
+                <li>Create an <code>index.html</code> file:
+                    <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;My First Solid App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;My First Solid App&lt;/h1&gt;
+    
+    &lt;div id="login-section"&gt;
+        &lt;h2&gt;Login&lt;/h2&gt;
+        &lt;input id="idp" type="text" placeholder="Your Identity Provider" value="https://solidcommunity.net"&gt;
+        &lt;button id="login-button"&gt;Log In&lt;/button&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="profile-section" style="display: none;"&gt;
+        &lt;h2&gt;Your Profile&lt;/h2&gt;
+        &lt;p&gt;WebID: &lt;span id="webid"&gt;&lt;/span&gt;&lt;/p&gt;
+        &lt;p&gt;Name: &lt;span id="name"&gt;&lt;/span&gt;&lt;/p&gt;
+        &lt;button id="logout-button"&gt;Log Out&lt;/button&gt;
+    &lt;/div&gt;
+    
+    &lt;script src="dist/bundle.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </li>
+                <li>Create a <code>src</code> directory and an <code>index.js</code> file inside it:
+                    <pre><code>import {
+  login,
+  handleIncomingRedirect,
+  getDefaultSession,
+  fetch
+} from '@inrupt/solid-client-authn-browser';
+
+import {
+  getSolidDataset,
+  getThing,
+  getStringNoLocale
+} from '@inrupt/solid-client';
+
+// Handle the login process
+async function handleLogin() {
+  const idp = document.getElementById('idp').value;
+  await login({
+    oidcIssuer: idp,
+    redirectUrl: window.location.href,
+    clientName: 'My First Solid App'
+  });
+}
+
+// Fetch the user's profile
+async function fetchProfile(webId) {
+  try {
+    const profileDataset = await getSolidDataset(webId, { fetch: fetch });
+    const profileThing = getThing(profileDataset, webId);
+    
+    const name = getStringNoLocale(profileThing, 'http://xmlns.com/foaf/0.1/name') || 'Unknown';
+    
+    document.getElementById('webid').textContent = webId;
+    document.getElementById('name').textContent = name;
+    
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('profile-section').style.display = 'block';
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+  }
+}
+
+// Handle logout
+async function handleLogout() {
+  const session = getDefaultSession();
+  await session.logout();
+  
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('profile-section').style.display = 'none';
+}
+
+// Initialize the application
+async function init() {
+  // Handle the redirect after login
+  await handleIncomingRedirect();
+  
+  // Check if the user is logged in
+  const session = getDefaultSession();
+  if (session.info.isLoggedIn) {
+    await fetchProfile(session.info.webId);
+  }
+  
+  // Set up event listeners
+  document.getElementById('login-button').addEventListener('click', handleLogin);
+  document.getElementById('logout-button').addEventListener('click', handleLogout);
+}
+
+// Start the application
+init();</code></pre>
+                </li>
+                <li>Create a <code>webpack.config.js</code> file:
+                    <pre><code>const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  mode: 'development',
+  entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'index.html'
+    })
+  ],
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
+    compress: true,
+    port: 8080
+  }
+};</code></pre>
+                </li>
+                <li>Add scripts to your <code>package.json</code>:
+                    <pre><code>"scripts": {
+  "build": "webpack",
+  "start": "webpack serve"
+}</code></pre>
+                </li>
+                <li>Build and run your application:
+                    <pre><code>npm run build
+npm start</code></pre>
+                </li>
+                <li>Open your browser to <code>http://localhost:8080</code></li>
+            </ol>
+            
+            <p>You now have a simple Solid application that can authenticate with your Pod and display your profile information!</p>
+
+            <h2>Step 5: Interact with Pod Data</h2>
+            
+            <p>Let's extend the application to create and read notes in your Pod:</p>
+            
+            <ol>
+                <li>Add HTML for the notes feature to your <code>index.html</code>:
+                    <pre><code>&lt;div id="notes-section" style="display: none;"&gt;
+    &lt;h2&gt;Your Notes&lt;/h2&gt;
+    &lt;div&gt;
+        &lt;input id="note-title" type="text" placeholder="Note Title"&gt;
+        &lt;textarea id="note-content" placeholder="Note Content"&gt;&lt;/textarea&gt;
+        &lt;button id="save-note"&gt;Save Note&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id="notes-list"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </li>
+                <li>Add functions to handle notes in your <code>index.js</code>:
+                    <pre><code>import {
+  createSolidDataset,
+  saveSolidDatasetAt,
+  createThing,
+  buildThing,
+  setThing,
+  addStringNoLocale,
+  addDatetime,
+  getThingAll,
+  getStringNoLocale,
+  getDatetime
+} from '@inrupt/solid-client';
+
+// Save a note to the Pod
+async function saveNote() {
+  const session = getDefaultSession();
+  if (!session.info.isLoggedIn) return;
+  
+  const title = document.getElementById('note-title').value;
+  const content = document.getElementById('note-content').value;
+  
+  if (!title || !content) {
+    alert('Please enter both title and content');
+    return;
+  }
+  
+  try {
+    // Get or create the notes dataset
+    const podRoot = session.info.webId.split('/profile')[0];
+    const notesUrl = `${podRoot}/public/notes.ttl`;
+    
+    let notesDataset;
+    try {
+      notesDataset = await getSolidDataset(notesUrl, { fetch: fetch });
+    } catch (error) {
+      notesDataset = createSolidDataset();
+    }
+    
+    // Create a new note Thing
+    const noteId = `note-${Date.now()}`;
+    const noteThing = buildThing(createThing({ name: noteId }))
+      .addStringNoLocale('http://schema.org/name', title)
+      .addStringNoLocale('http://schema.org/text', content)
+      .addDatetime('http://schema.org/dateCreated', new Date())
+      .build();
+    
+    // Add the note to the dataset
+    const updatedDataset = setThing(notesDataset, noteThing);
+    
+    // Save the dataset back to the Pod
+    await saveSolidDatasetAt(notesUrl, updatedDataset, { fetch: fetch });
+    
+    // Clear the form
+    document.getElementById('note-title').value = '';
+    document.getElementById('note-content').value = '';
+    
+    // Refresh the notes list
+    await fetchNotes();
+    
+    alert('Note saved successfully!');
+  } catch (error) {
+    console.error('Error saving note:', error);
+    alert('Error saving note');
+  }
+}
+
+// Fetch notes from the Pod
+async function fetchNotes() {
+  const session = getDefaultSession();
+  if (!session.info.isLoggedIn) return;
+  
+  try {
+    const podRoot = session.info.webId.split('/profile')[0];
+    const notesUrl = `${podRoot}/public/notes.ttl`;
+    
+    let notesDataset;
+    try {
+      notesDataset = await getSolidDataset(notesUrl, { fetch: fetch });
+    } catch (error) {
+      // No notes yet
+      document.getElementById('notes-list').innerHTML = '<p>No notes found</p>';
+      return;
+    }
+    
+    // Get all note Things
+    const noteThings = getThingAll(notesDataset);
+    
+    // Display the notes
+    const notesHtml = noteThings.map(note => {
+      const title = getStringNoLocale(note, 'http://schema.org/name') || 'Untitled';
+      const content = getStringNoLocale(note, 'http://schema.org/text') || '';
+      const created = getDatetime(note, 'http://schema.org/dateCreated');
+      const date = created ? created.toLocaleDateString() : 'Unknown date';
+      
+      return `
+        &lt;div class="note"&gt;
+          &lt;h3&gt;${title}&lt;/h3&gt;
+          &lt;p&gt;${content}&lt;/p&gt;
+          &lt;small&gt;Created: ${date}&lt;/small&gt;
+        &lt;/div&gt;
+      `;
+    }).join('');
+    
+    document.getElementById('notes-list').innerHTML = notesHtml || '<p>No notes found</p>';
+  } catch (error) {
+    console.error('Error fetching notes:', error);
+    document.getElementById('notes-list').innerHTML = '<p>Error loading notes</p>';
+  }
+}
+
+// Update the fetchProfile function to show the notes section
+async function fetchProfile(webId) {
+  try {
+    const profileDataset = await getSolidDataset(webId, { fetch: fetch });
+    const profileThing = getThing(profileDataset, webId);
+    
+    const name = getStringNoLocale(profileThing, 'http://xmlns.com/foaf/0.1/name') || 'Unknown';
+    
+    document.getElementById('webid').textContent = webId;
+    document.getElementById('name').textContent = name;
+    
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('profile-section').style.display = 'block';
+    document.getElementById('notes-section').style.display = 'block';
+    
+    // Fetch notes
+    await fetchNotes();
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+  }
+}
+
+// Update the init function to add event listener for saving notes
+async function init() {
+  // Handle the redirect after login
+  await handleIncomingRedirect();
+  
+  // Check if the user is logged in
+  const session = getDefaultSession();
+  if (session.info.isLoggedIn) {
+    await fetchProfile(session.info.webId);
+  }
+  
+  // Set up event listeners
+  document.getElementById('login-button').addEventListener('click', handleLogin);
+  document.getElementById('logout-button').addEventListener('click', handleLogout);
+  document.getElementById('save-note').addEventListener('click', saveNote);
+}</code></pre>
+                </li>
+                <li>Add some basic CSS to your <code>index.html</code>:
+                    <pre><code>&lt;style&gt;
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    input, textarea, button {
+        margin: 5px 0;
+        padding: 8px;
+    }
+    textarea {
+        width: 100%;
+        height: 100px;
+    }
+    .note {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+&lt;/style&gt;</code></pre>
+                </li>
+                <li>Rebuild and run your application:
+                    <pre><code>npm run build
+npm start</code></pre>
+                </li>
+            </ol>
+            
+            <p>Your application can now create and read notes stored in your Pod!</p>
+
+            <h2>Next Steps</h2>
+            
+            <p>Congratulations! You've created your first Solid application. Here are some next steps to continue your Solid journey:</p>
+            
+            <ul>
+                <li>Learn more about <a href="webid.html">WebID</a> and <a href="pods.html">Pods</a></li>
+                <li>Explore <a href="linked-data.html">Linked Data</a> principles</li>
+                <li>Understand <a href="access-control.html">Access Control</a> to manage permissions</li>
+                <li>Dive deeper into <a href="authentication.html">Authentication</a> mechanisms</li>
+                <li>Check out the <a href="client-apps.html">Building Client Apps</a> guide for more advanced techniques</li>
+                <li>Consider <a href="server-setup.html">Setting Up a Server</a> to host your own Pod</li>
+            </ul>
+            
+            <div class="callout">
+                <h4>Resources</h4>
+                <p>For more examples and resources, check out:</p>
+                <ul>
+                    <li><a href="https://solidproject.org/developers/tutorials" target="_blank">Solid Project Tutorials</a></li>
+                    <li><a href="https://github.com/solid/solid-client-js" target="_blank">solid-client-js Documentation</a></li>
+                    <li><a href="https://github.com/solid/solid-ui" target="_blank">solid-ui Library</a></li>
+                    <li><a href="https://forum.solidproject.org/" target="_blank">Solid Community Forum</a></li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Documentation for Solid. <a href="https://solidproject.org/" target="_blank">Solid Project</a></p>
+    </footer>
+</body>
+</html> 

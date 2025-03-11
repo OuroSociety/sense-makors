@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview - Solid Documentation | Sense-Proto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/solid/solid" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html" class="active">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Solid vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Solid vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Solid Overview</h1>
+            
+            <p>This overview provides a high-level understanding of the Solid ecosystem, its architecture, and how the different components work together to create a decentralized web of data.</p>
+
+            <div class="callout">
+                <h4>What You'll Learn</h4>
+                <p>This page explains the overall architecture of Solid, how the components interact, and the flow of data and authentication in the Solid ecosystem.</p>
+            </div>
+
+            <h2>Solid Architecture</h2>
+            
+            <p>Solid is built on a modular architecture that separates data storage from applications. The key components include:</p>
+            
+            <ul>
+                <li><strong>Pods</strong>: Personal data stores that hold user data</li>
+                <li><strong>Solid Servers</strong>: Implementations that host Pods and enforce access control</li>
+                <li><strong>Solid Applications</strong>: Web apps that interact with data in Pods</li>
+                <li><strong>Identity Providers</strong>: Services that authenticate users via WebID</li>
+                <li><strong>Linked Data Platform</strong>: The foundation for data organization and access</li>
+            </ul>
+            
+            <p>These components work together to create a decentralized ecosystem where users control their data and applications can interoperate.</p>
+
+            <h2>Component Interactions</h2>
+
+            <h3>Data Flow</h3>
+            
+            <p>The flow of data in Solid follows these general patterns:</p>
+            
+            <ol>
+                <li>Applications request data from Pods using standard HTTP methods</li>
+                <li>Solid servers check access permissions before serving data</li>
+                <li>Data is exchanged using RDF formats (Turtle, JSON-LD, etc.)</li>
+                <li>Applications can write data back to Pods with proper authorization</li>
+                <li>Multiple applications can access and modify the same data</li>
+            </ol>
+            
+            <p>This data flow enables interoperability and data reuse across applications.</p>
+
+            <h3>Authentication Flow</h3>
+            
+            <p>Authentication in Solid typically follows these steps:</p>
+            
+            <ol>
+                <li>User visits a Solid application and initiates login</li>
+                <li>Application redirects to the user's identity provider</li>
+                <li>User authenticates with their identity provider</li>
+                <li>Identity provider issues tokens containing the user's WebID</li>
+                <li>Application uses these tokens to access resources in Pods</li>
+                <li>Solid servers validate tokens and check access permissions</li>
+            </ol>
+            
+            <p>This decentralized authentication allows users to use a single identity across multiple applications.</p>
+
+            <h2>Technical Stack</h2>
+            
+            <p>Solid is built on existing web standards and technologies:</p>
+            
+            <ul>
+                <li><strong>HTTP</strong>: For communication between components</li>
+                <li><strong>RDF</strong>: For data representation and linking</li>
+                <li><strong>LDP (Linked Data Platform)</strong>: For resource management</li>
+                <li><strong>WebID</strong>: For decentralized identity</li>
+                <li><strong>OAuth/OIDC</strong>: For authentication and authorization</li>
+                <li><strong>WAC/ACP</strong>: For access control</li>
+            </ul>
+            
+            <p>By building on established standards, Solid ensures compatibility with the existing web infrastructure.</p>
+
+            <h2>Solid Ecosystem Diagram</h2>
+            
+            <pre><code>
++------------------+       +------------------+
+|                  |       |                  |
+|  Solid App 1     |       |  Solid App 2     |
+|                  |       |                  |
++--------+---------+       +--------+---------+
+         |                          |
+         v                          v
++------------------+       +------------------+
+|                  |       |                  |
+|  Identity        |       |  Solid Server    |
+|  Provider        |       |                  |
+|                  |       |  +------------+  |
++--------+---------+       |  |            |  |
+         |                 |  |  Pod       |  |
+         |                 |  |            |  |
+         +---------------->|  +------------+  |
+                           |                  |
+                           +------------------+
+</code></pre>
+            
+            <p>This simplified diagram shows how Solid applications interact with identity providers and Solid servers to access data in Pods.</p>
+
+            <h2>Use Cases</h2>
+            
+            <p>Solid can be used for a wide range of applications:</p>
+            
+            <ul>
+                <li><strong>Personal Data Management</strong>: Contacts, calendars, notes, etc.</li>
+                <li><strong>Social Networking</strong>: Decentralized social media platforms</li>
+                <li><strong>Collaborative Work</strong>: Document sharing and co-editing</li>
+                <li><strong>Healthcare</strong>: Patient-controlled health records</li>
+                <li><strong>Education</strong>: Student portfolios and learning materials</li>
+                <li><strong>Research</strong>: Data sharing and collaboration</li>
+            </ul>
+            
+            <p>These use cases leverage Solid's ability to give users control over their data while enabling collaboration and data sharing.</p>
+
+            <h2>Implementation Options</h2>
+            
+            <p>There are several ways to implement Solid components:</p>
+            
+            <h3>Solid Servers</h3>
+            
+            <ul>
+                <li><a href="https://github.com/solid/community-server" target="_blank">Solid Community Server</a> (JavaScript)</li>
+                <li><a href="https://github.com/solid/node-solid-server" target="_blank">Node Solid Server</a> (JavaScript)</li>
+                <li><a href="https://github.com/solid/solid-nextcloud" target="_blank">Solid Nextcloud</a> (PHP)</li>
+                <li>Custom implementations following the Solid specification</li>
+            </ul>
+            
+            <h3>Solid Applications</h3>
+            
+            <ul>
+                <li>Browser-based web applications</li>
+                <li>Mobile applications</li>
+                <li>Desktop applications</li>
+                <li>Command-line tools</li>
+            </ul>
+            
+            <h3>Development Libraries</h3>
+            
+            <ul>
+                <li><a href="https://github.com/solid/solid-client-js" target="_blank">solid-client-js</a>: JavaScript library for Solid applications</li>
+                <li><a href="https://github.com/solid/solid-auth-client" target="_blank">solid-auth-client</a>: Authentication library</li>
+                <li><a href="https://github.com/solid/query-ldflex" target="_blank">query-ldflex</a>: Simplified query syntax</li>
+                <li>Various RDF libraries in different programming languages</li>
+            </ul>
+            
+            <p>These implementation options provide flexibility for developers to build Solid components that meet their specific needs.</p>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Now that you understand the overall architecture of Solid, you might want to check out the <a href="quickstart.html">Quickstart</a> guide to get hands-on experience with Solid.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Documentation for Solid. <a href="https://solidproject.org/" target="_blank">Solid Project</a></p>
+    </footer>
+</body>
+</html> 

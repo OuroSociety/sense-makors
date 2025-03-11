@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linked Data - Solid Documentation | Sense-Proto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/solid/solid" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html">Pods</a></li>
+                <li><a href="linked-data.html" class="active">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Solid vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Solid vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Linked Data</h1>
+            
+            <p>Linked Data is a method of publishing structured data so that it can be interlinked and become more useful through semantic queries. It forms the foundation of how data is structured and connected in the Solid ecosystem.</p>
+
+            <div class="callout">
+                <h4>What is Linked Data?</h4>
+                <p>Linked Data is a way of structuring and connecting data using web standards, allowing different applications to understand and use the same data. It's like creating a web of interconnected facts that both humans and machines can navigate and understand.</p>
+            </div>
+
+            <h2>Core Principles of Linked Data</h2>
+            
+            <p>Linked Data is built on four key principles, originally outlined by Tim Berners-Lee:</p>
+            
+            <ol>
+                <li><strong>Use URIs as names for things</strong> - Identify resources with unique web addresses</li>
+                <li><strong>Use HTTP URIs</strong> - Make these identifiers resolvable on the web</li>
+                <li><strong>Provide useful information using standards (RDF, SPARQL)</strong> - When someone looks up a URI, provide meaningful information</li>
+                <li><strong>Include links to other URIs</strong> - Connect your data to other data to enable discovery</li>
+            </ol>
+            
+            <p>These principles enable a web of data that can be navigated and queried much like the web of documents we're familiar with.</p>
+
+            <h2>Technical Implementation</h2>
+
+            <h3>1. Resource Description Framework (RDF)</h3>
+            
+            <p>RDF is the fundamental data model for Linked Data. It represents information as "triples" consisting of:</p>
+            
+            <ul>
+                <li><strong>Subject</strong>: The resource being described (identified by a URI)</li>
+                <li><strong>Predicate</strong>: The property or relationship (also identified by a URI)</li>
+                <li><strong>Object</strong>: The value or related resource (a URI or literal value)</li>
+            </ul>
+            
+            <p>For example, to represent "Alice knows Bob," we might use:</p>
+            
+            <pre><code>&lt;https://alice.solidpod.example/profile#me&gt; &lt;http://xmlns.com/foaf/0.1/knows&gt; &lt;https://bob.solidpod.example/profile#me&gt; .</code></pre>
+            
+            <p>This triple states that the resource identified by Alice's WebID has a "knows" relationship with the resource identified by Bob's WebID.</p>
+
+            <h3>2. RDF Serialization Formats</h3>
+            
+            <p>RDF data can be serialized (written) in various formats:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Turtle</td>
+                        <td>A concise, human-readable format</td>
+                        <td><code>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .<br>
+&lt;#me&gt; foaf:name "Alice" .</code></td>
+                    </tr>
+                    <tr>
+                        <td>JSON-LD</td>
+                        <td>JSON-based format for Linked Data</td>
+                        <td><code>{<br>
+  "@context": {<br>
+    "foaf": "http://xmlns.com/foaf/0.1/"<br>
+  },<br>
+  "@id": "#me",<br>
+  "foaf:name": "Alice"<br>
+}</code></td>
+                    </tr>
+                    <tr>
+                        <td>RDF/XML</td>
+                        <td>XML-based format (older)</td>
+                        <td><code>&lt;rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"<br>
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"&gt;<br>
+  &lt;rdf:Description rdf:about="#me"&gt;<br>
+    &lt;foaf:name&gt;Alice&lt;/foaf:name&gt;<br>
+  &lt;/rdf:Description&gt;<br>
+&lt;/rdf:RDF&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <td>N-Triples</td>
+                        <td>Simple line-based format</td>
+                        <td><code>&lt;#me&gt; &lt;http://xmlns.com/foaf/0.1/name&gt; "Alice" .</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p>In Solid, Turtle and JSON-LD are the most commonly used formats.</p>
+
+            <h3>3. Vocabularies and Ontologies</h3>
+            
+            <p>Vocabularies and ontologies define the terms (predicates and classes) used in Linked Data:</p>
+            
+            <ul>
+                <li><strong>FOAF (Friend of a Friend)</strong>: For describing people and their relationships</li>
+                <li><strong>Dublin Core</strong>: For basic metadata (title, creator, date, etc.)</li>
+                <li><strong>Schema.org</strong>: For common entities like people, events, products</li>
+                <li><strong>SIOC (Semantically-Interlinked Online Communities)</strong>: For online community information</li>
+                <li><strong>Solid Terms</strong>: Specific vocabulary for Solid concepts</li>
+            </ul>
+            
+            <p>Using established vocabularies ensures that different applications can understand the same data.</p>
+
+            <h3>4. Querying Linked Data</h3>
+            
+            <p>SPARQL (SPARQL Protocol and RDF Query Language) is the standard query language for RDF data:</p>
+            
+            <pre><code>PREFIX foaf: &lt;http://xmlns.com/foaf/0.1/&gt;
+
+SELECT ?name ?email
+WHERE {
+  &lt;https://alice.solidpod.example/profile#me&gt; foaf:name ?name .
+  OPTIONAL { &lt;https://alice.solidpod.example/profile#me&gt; foaf:mbox ?email . }
+}</code></pre>
+            
+            <p>This query retrieves Alice's name and email (if available) from her profile.</p>
+            
+            <p>In Solid applications, libraries like <code>solid-client</code> often provide higher-level abstractions for common queries.</p>
+
+            <h2>Linked Data in Solid</h2>
+
+            <h3>1. Data Organization</h3>
+            
+            <p>In Solid, data is organized as Linked Data in Pods:</p>
+            
+            <ul>
+                <li>Each resource (document, image, etc.) has a URI</li>
+                <li>Resources can be described using RDF</li>
+                <li>Resources can link to other resources within the same Pod or in other Pods</li>
+                <li>Containers (folders) are also resources that can be described and linked</li>
+            </ul>
+            
+            <p>This organization enables flexible data structures that can evolve over time.</p>
+
+            <h3>2. Linked Data Platform (LDP)</h3>
+            
+            <p>Solid builds on the W3C Linked Data Platform (LDP) specification, which defines:</p>
+            
+            <ul>
+                <li>How to organize resources in containers</li>
+                <li>How to create, read, update, and delete resources</li>
+                <li>How to manage resource metadata</li>
+                <li>How to handle content negotiation</li>
+            </ul>
+            
+            <p>LDP provides a standard RESTful API for working with Linked Data resources.</p>
+
+            <h3>3. Shape Validation</h3>
+            
+            <p>To ensure data quality and compatibility, Solid supports shape validation using:</p>
+            
+            <ul>
+                <li><strong>SHACL (Shapes Constraint Language)</strong>: For validating RDF graphs against a set of conditions</li>
+                <li><strong>ShEx (Shape Expressions)</strong>: A language for describing and validating RDF structures</li>
+            </ul>
+            
+            <p>Shape validation helps ensure that data conforms to expected patterns, making it more reliable for applications to use.</p>
+
+            <h3>4. Content Negotiation</h3>
+            
+            <p>Solid servers support content negotiation, allowing clients to request data in their preferred format:</p>
+            
+            <pre><code>GET /profile/card HTTP/1.1
+Host: alice.solidpod.example
+Accept: text/turtle</code></pre>
+            
+            <p>This request asks for Alice's profile card in Turtle format. The server might also support JSON-LD, RDF/XML, or other formats.</p>
+
+            <h2>Benefits of Linked Data in Solid</h2>
+
+            <h3>1. Interoperability</h3>
+            
+            <p>Linked Data enables different applications to work with the same data:</p>
+            
+            <ul>
+                <li>A contact management app and a messaging app can both use the same contact information</li>
+                <li>A calendar app and a task manager can share event data</li>
+                <li>A photo app and a social media app can access the same images</li>
+            </ul>
+            
+            <p>This interoperability reduces data silos and gives users more choice in applications.</p>
+
+            <h3>2. Data Integration</h3>
+            
+            <p>Linked Data makes it easier to integrate data from different sources:</p>
+            
+            <ul>
+                <li>Combine personal data from your Pod with public data from other sources</li>
+                <li>Link your profile to profiles of friends and colleagues</li>
+                <li>Connect your data to relevant external resources</li>
+            </ul>
+            
+            <p>This integration creates a richer web of information that can be navigated and queried.</p>
+
+            <h3>3. Semantic Understanding</h3>
+            
+            <p>Linked Data provides semantic context that helps applications understand the meaning of data:</p>
+            
+            <ul>
+                <li>Distinguish between different types of relationships (friend, colleague, family)</li>
+                <li>Understand the roles of people in events or organizations</li>
+                <li>Recognize the significance of dates, locations, and other attributes</li>
+            </ul>
+            
+            <p>This semantic understanding enables more intelligent applications that can reason about data.</p>
+
+            <h3>4. Evolvability</h3>
+            
+            <p>Linked Data structures can evolve over time without breaking existing applications:</p>
+            
+            <ul>
+                <li>Add new properties without affecting existing ones</li>
+                <li>Extend data models with additional classes and relationships</li>
+                <li>Deprecate properties gracefully while maintaining backward compatibility</li>
+            </ul>
+            
+            <p>This evolvability ensures that data remains useful as needs and technologies change.</p>
+
+            <h2>Practical Examples</h2>
+
+            <h3>Example: Profile Data</h3>
+            
+            <p>Here's a simplified example of a WebID profile in Turtle format:</p>
+            
+            <pre><code>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt;.
+@prefix schema: &lt;http://schema.org/&gt;.
+@prefix solid: &lt;http://www.w3.org/ns/solid/terms#&gt;.
+
+&lt;#me&gt;
+    a foaf:Person;
+    foaf:name "Alice Smith";
+    foaf:mbox &lt;mailto:alice@example.org&gt;;
+    schema:birthDate "1990-01-15"^^xsd:date;
+    foaf:knows &lt;https://bob.solidpod.example/profile#me&gt;, &lt;https://carol.solidpod.example/profile#me&gt;;
+    solid:oidcIssuer &lt;https://solidcommunity.net&gt;.</code></pre>
+            
+            <p>This profile describes Alice, including her name, email, birth date, people she knows, and her Solid identity provider.</p>
+
+            <h3>Example: Contact List</h3>
+            
+            <p>A contact list might be represented as:</p>
+            
+            <pre><code>@prefix vcard: &lt;http://www.w3.org/2006/vcard/ns#&gt;.
+
+&lt;#addressBook&gt;
+    a vcard:AddressBook;
+    vcard:nameEmailIndex &lt;#ab1&gt;, &lt;#ab2&gt;.
+
+&lt;#ab1&gt;
+    a vcard:Individual;
+    vcard:fn "Bob Johnson";
+    vcard:hasEmail &lt;mailto:bob@example.org&gt;;
+    vcard:hasTelephone &lt;tel:+1-555-123-4567&gt;.
+
+&lt;#ab2&gt;
+    a vcard:Individual;
+    vcard:fn "Carol Williams";
+    vcard:hasEmail &lt;mailto:carol@example.org&gt;.</code></pre>
+            
+            <p>This example uses the vCard ontology to represent contact information in a structured way.</p>
+
+            <h3>Example: Calendar Event</h3>
+            
+            <p>A calendar event might be represented as:</p>
+            
+            <pre><code>@prefix cal: &lt;http://www.w3.org/2002/12/cal/ical#&gt;.
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
+
+&lt;#event1&gt;
+    a cal:Vevent;
+    cal:summary "Team Meeting";
+    cal:description "Weekly team sync-up";
+    cal:dtstart "2023-06-15T14:00:00Z"^^xsd:dateTime;
+    cal:dtend "2023-06-15T15:00:00Z"^^xsd:dateTime;
+    cal:location "Conference Room A";
+    cal:attendee &lt;https://alice.solidpod.example/profile#me&gt;, &lt;https://bob.solidpod.example/profile#me&gt;.</code></pre>
+            
+            <p>This example uses the iCalendar ontology to represent a meeting, including its time, location, and attendees.</p>
+
+            <h2>Working with Linked Data in Solid Applications</h2>
+
+            <h3>1. Reading Linked Data</h3>
+            
+            <p>To read Linked Data in a Solid application, you typically:</p>
+            
+            <ol>
+                <li>Authenticate with the user's Pod</li>
+                <li>Fetch the resource using its URI</li>
+                <li>Parse the RDF data into a usable format</li>
+                <li>Extract the relevant information</li>
+            </ol>
+            
+            <p>Using the <code>solid-client</code> library in JavaScript:</p>
+            
+            <pre><code>import { getSolidDataset, getThing, getStringNoLocale } from '@inrupt/solid-client';
+import { fetch } from '@inrupt/solid-client-authn-browser';
+
+async function readProfile(webId) {
+  // Fetch the profile as a dataset
+  const profileDataset = await getSolidDataset(webId, { fetch });
+  
+  // Get the profile thing
+  const profile = getThing(profileDataset, webId);
+  
+  // Extract the name
+  const name = getStringNoLocale(profile, 'http://xmlns.com/foaf/0.1/name');
+  
+  console.log(`Hello, ${name}!`);
+}</code></pre>
+
+            <h3>2. Writing Linked Data</h3>
+            
+            <p>To write Linked Data to a Solid Pod:</p>
+            
+            <ol>
+                <li>Authenticate with the user's Pod</li>
+                <li>Create or fetch the resource</li>
+                <li>Modify the RDF data</li>
+                <li>Save the updated resource</li>
+            </ol>
+            
+            <p>Using the <code>solid-client</code> library:</p>
+            
+            <pre><code>import { getSolidDataset, getThing, setThing, 
+         saveSolidDatasetAt, createThing, addStringNoLocale } from '@inrupt/solid-client';
+import { fetch } from '@inrupt/solid-client-authn-browser';
+
+async function addNote(podUrl, title, content) {
+  // Create a container for notes if it doesn't exist
+  const notesUrl = `${podUrl}notes/`;
+  
+  // Create a new note Thing
+  let note = createThing({ name: 'note' });
+  
+  // Add properties to the note
+  note = addStringNoLocale(note, 'http://purl.org/dc/terms/title', title);
+  note = addStringNoLocale(note, 'http://purl.org/dc/terms/content', content);
+  note = addStringNoLocale(note, 'http://purl.org/dc/terms/created', new Date().toISOString());
+  
+  // Create or get the dataset
+  let noteDataset;
+  try {
+    noteDataset = await getSolidDataset(notesUrl, { fetch });
+  } catch (error) {
+    noteDataset = createSolidDataset();
+  }
+  
+  // Add the note to the dataset
+  noteDataset = setThing(noteDataset, note);
+  
+  // Save the dataset back to the Pod
+  await saveSolidDatasetAt(notesUrl, noteDataset, { fetch });
+  
+  console.log('Note saved successfully!');
+}</code></pre>
+
+            <h3>3. Querying Linked Data</h3>
+            
+            <p>For more complex queries, you can use SPARQL or higher-level abstractions:</p>
+            
+            <pre><code>import { getSolidDataset, getThing, getThingAll, 
+         getStringNoLocale, getDatetime } from '@inrupt/solid-client';
+import { fetch } from '@inrupt/solid-client-authn-browser';
+
+async function findRecentNotes(podUrl) {
+  const notesUrl = `${podUrl}notes/`;
+  
+  // Fetch the notes dataset
+  const notesDataset = await getSolidDataset(notesUrl, { fetch });
+  
+  // Get all things in the dataset
+  const allNotes = getThingAll(notesDataset);
+  
+  // Filter notes created in the last week
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  
+  const recentNotes = allNotes.filter(note => {
+    const createdDate = getDatetime(note, 'http://purl.org/dc/terms/created');
+    return createdDate && createdDate > oneWeekAgo;
+  });
+  
+  // Extract title and content from each note
+  return recentNotes.map(note => ({
+    title: getStringNoLocale(note, 'http://purl.org/dc/terms/title'),
+    content: getStringNoLocale(note, 'http://purl.org/dc/terms/content'),
+    created: getDatetime(note, 'http://purl.org/dc/terms/created')
+  }));
+}</code></pre>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Now that you understand Linked Data, learn about <a href="access-control.html">Access Control</a> to see how permissions are managed in the Solid ecosystem.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Documentation for Solid. <a href="https://solidproject.org/" target="_blank">Solid Project</a></p>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pods - Solid Documentation | Sense-Proto</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Sense<span>Proto</span></a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Docs</a></li>
+                <li><a href="guides.html">Guides</a></li>
+                <li><a href="api.html">API</a></li>
+                <li><a href="contribute.html">Contribute</a></li>
+                <li><a href="https://github.com/solid/solid" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="index.html">Introduction</a></li>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="quickstart.html">Quickstart</a></li>
+            </ul>
+
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="webid.html">WebID</a></li>
+                <li><a href="pods.html" class="active">Pods</a></li>
+                <li><a href="linked-data.html">Linked Data</a></li>
+                <li><a href="access-control.html">Access Control</a></li>
+                <li><a href="authentication.html">Authentication</a></li>
+            </ul>
+
+            <h3>Guides</h3>
+            <ul>
+                <li><a href="server-setup.html">Setting Up a Server</a></li>
+                <li><a href="client-apps.html">Building Client Apps</a></li>
+                <li><a href="data-model.html">Data Modeling</a></li>
+                <li><a href="sparql.html">Using SPARQL</a></li>
+            </ul>
+
+            <h3>Comparisons</h3>
+            <ul>
+                <li><a href="vs-atproto.html">Solid vs. ATProto</a></li>
+                <li><a href="vs-activitypub.html">Solid vs. ActivityPub</a></li>
+            </ul>
+
+            <h3>Community</h3>
+            <ul>
+                <li><a href="contribute.html">Contributing</a></li>
+                <li><a href="sense-maker.html">Sense-Maker</a></li>
+                <li><a href="resources.html">Resources</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Pods</h1>
+            
+            <p>Pods (Personal Online Data Stores) are the cornerstone of data storage in the Solid ecosystem. They serve as personal data vaults where users can store their information and control who has access to it.</p>
+
+            <div class="callout">
+                <h4>What is a Pod?</h4>
+                <p>A Pod is a secure, personal web server that stores data for an individual user. It's like having your own personal cloud storage that you fully control, where applications can store and access your data with your permission.</p>
+            </div>
+
+            <h2>Pod Architecture</h2>
+            
+            <p>At its core, a Pod is a web server that implements the Solid protocol. It provides:</p>
+            
+            <ul>
+                <li>A storage space for your data</li>
+                <li>Access control mechanisms to protect your data</li>
+                <li>Standard interfaces for applications to read and write data</li>
+                <li>Support for Linked Data principles</li>
+            </ul>
+            
+            <p>Pods are designed to be interoperable, meaning that any Solid application can work with any Pod, regardless of which provider hosts it.</p>
+
+            <h3>Pod Structure</h3>
+            
+            <p>A Pod is organized as a hierarchical file system, similar to a traditional web server:</p>
+            
+            <pre><code>https://alice.solidpod.example/
+├── profile/
+│   └── card
+├── inbox/
+├── public/
+├── private/
+├── contacts/
+├── notes/
+└── .acl files (access control)</code></pre>
+            
+            <p>Each Pod typically includes:</p>
+            
+            <ul>
+                <li><strong>Profile</strong>: Contains the user's WebID profile document</li>
+                <li><strong>Inbox</strong>: A location where others can send notifications</li>
+                <li><strong>Public and Private folders</strong>: For storing data with different visibility levels</li>
+                <li><strong>Application-specific folders</strong>: Created by applications to store their data</li>
+                <li><strong>Access Control Lists (ACLs)</strong>: Files that define who can access what</li>
+            </ul>
+
+            <h2>Technical Implementation</h2>
+
+            <h3>1. RESTful API</h3>
+            
+            <p>Pods expose a RESTful API that follows the Linked Data Platform (LDP) specification. This API allows clients to:</p>
+            
+            <ul>
+                <li>Create, read, update, and delete resources</li>
+                <li>Manage containers (folders)</li>
+                <li>Set and retrieve metadata</li>
+                <li>Control access permissions</li>
+            </ul>
+            
+            <p>Common HTTP methods used with Pods include:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Purpose</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>Retrieve a resource or container</td>
+                        <td><code>GET /notes/note1.ttl</code></td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>Create a new resource in a container</td>
+                        <td><code>POST /notes/</code></td>
+                    </tr>
+                    <tr>
+                        <td>PUT</td>
+                        <td>Create or replace a resource</td>
+                        <td><code>PUT /notes/note1.ttl</code></td>
+                    </tr>
+                    <tr>
+                        <td>PATCH</td>
+                        <td>Update part of a resource</td>
+                        <td><code>PATCH /notes/note1.ttl</code></td>
+                    </tr>
+                    <tr>
+                        <td>DELETE</td>
+                        <td>Remove a resource</td>
+                        <td><code>DELETE /notes/note1.ttl</code></td>
+                    </tr>
+                    <tr>
+                        <td>HEAD</td>
+                        <td>Retrieve headers only</td>
+                        <td><code>HEAD /notes/note1.ttl</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2. Data Storage</h3>
+            
+            <p>Pods store data in various formats, with a preference for RDF (Resource Description Framework) formats like Turtle, JSON-LD, and N-Triples. However, Pods can also store:</p>
+            
+            <ul>
+                <li>Binary files (images, videos, documents)</li>
+                <li>JSON data</li>
+                <li>Plain text</li>
+                <li>Any other file format</li>
+            </ul>
+            
+            <p>For RDF data, Pods typically use content negotiation to serve the data in the format requested by the client.</p>
+
+            <h3>3. Access Control</h3>
+            
+            <p>Pods implement a sophisticated access control system based on Web Access Control (WAC) or Access Control Policies (ACP):</p>
+            
+            <ul>
+                <li><strong>WAC</strong>: Uses .acl files to define who can access what resources</li>
+                <li><strong>ACP</strong>: A newer system that provides more fine-grained control</li>
+            </ul>
+            
+            <p>Access control rules can specify:</p>
+            
+            <ul>
+                <li>Who has access (individuals, groups, or the public)</li>
+                <li>What type of access they have (read, write, append, control)</li>
+                <li>Which resources the access applies to (specific resources or entire containers)</li>
+            </ul>
+            
+            <p>Here's an example of a WAC file in Turtle format:</p>
+            
+            <pre><code>@prefix acl: &lt;http://www.w3.org/ns/auth/acl#&gt;.
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt;.
+
+&lt;#owner&gt;
+    a acl:Authorization;
+    acl:agent &lt;https://alice.solidpod.example/profile#me&gt;;
+    acl:accessTo &lt;./note1.ttl&gt;;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+&lt;#public&gt;
+    a acl:Authorization;
+    acl:agentClass foaf:Agent;
+    acl:accessTo &lt;./note1.ttl&gt;;
+    acl:mode acl:Read.</code></pre>
+            
+            <p>This example grants the owner (Alice) full control over note1.ttl, while allowing anyone (foaf:Agent) to read it.</p>
+
+            <h3>4. Notifications</h3>
+            
+            <p>Pods support a notification system that allows:</p>
+            
+            <ul>
+                <li>Applications to subscribe to changes in resources</li>
+                <li>Users to receive notifications when their data is accessed or modified</li>
+                <li>Real-time updates using WebSockets or other mechanisms</li>
+            </ul>
+            
+            <p>This enables collaborative applications and real-time synchronization across devices.</p>
+
+            <h2>Pod Providers and Hosting</h2>
+
+            <h3>Public Pod Providers</h3>
+            
+            <p>Several organizations offer Pod hosting services:</p>
+            
+            <ul>
+                <li><a href="https://solidcommunity.net/" target="_blank">solidcommunity.net</a></li>
+                <li><a href="https://inrupt.net/" target="_blank">inrupt.net</a></li>
+                <li><a href="https://solidweb.org/" target="_blank">solidweb.org</a></li>
+            </ul>
+            
+            <p>These providers offer free or paid Pod hosting with varying features and storage limits.</p>
+
+            <h3>Self-Hosting</h3>
+            
+            <p>You can also host your own Pod using one of several available Pod server implementations:</p>
+            
+            <ul>
+                <li><a href="https://github.com/solid/community-server" target="_blank">Solid Community Server</a> (JavaScript)</li>
+                <li><a href="https://github.com/solid/node-solid-server" target="_blank">Node Solid Server</a> (JavaScript)</li>
+                <li><a href="https://github.com/solid/solid-nextcloud" target="_blank">Solid Nextcloud</a> (PHP)</li>
+                <li><a href="https://github.com/solid/solid-spec" target="_blank">Other implementations</a> in various languages</li>
+            </ul>
+            
+            <p>Self-hosting gives you complete control over your data and server configuration but requires technical knowledge to set up and maintain.</p>
+
+            <h3>Pod Migration</h3>
+            
+            <p>One of the key features of Solid is data portability. You can migrate your Pod from one provider to another without losing access to your data or breaking applications that use it. This is possible because:</p>
+            
+            <ul>
+                <li>Your WebID remains constant even if your Pod location changes</li>
+                <li>You can update your WebID profile to point to your new Pod location</li>
+                <li>Applications use your WebID to discover where your data is stored</li>
+            </ul>
+
+            <h2>Using Pods</h2>
+
+            <h3>Creating a Pod</h3>
+            
+            <p>To create a Pod, you can:</p>
+            
+            <ol>
+                <li>Sign up with a Pod provider</li>
+                <li>Set up your own Pod server</li>
+                <li>Use a Solid application that helps you create a Pod</li>
+            </ol>
+            
+            <p>During the creation process, you'll typically:</p>
+            
+            <ul>
+                <li>Choose a username</li>
+                <li>Set up authentication credentials</li>
+                <li>Create a WebID profile</li>
+                <li>Configure initial access controls</li>
+            </ul>
+
+            <h3>Managing Your Pod</h3>
+            
+            <p>You can manage your Pod using:</p>
+            
+            <ul>
+                <li><strong>Pod management applications</strong>: Tools like <a href="https://github.com/solid/mashlib" target="_blank">Mashlib</a> or <a href="https://github.com/solid/solid-ui" target="_blank">Solid-UI</a></li>
+                <li><strong>Data browsers</strong>: Applications that let you browse and edit your Pod contents</li>
+                <li><strong>Command-line tools</strong>: For advanced users who prefer terminal access</li>
+                <li><strong>Specialized applications</strong>: That focus on specific types of data (contacts, notes, etc.)</li>
+            </ul>
+            
+            <p>These tools allow you to:</p>
+            
+            <ul>
+                <li>Browse your Pod contents</li>
+                <li>Upload and download files</li>
+                <li>Manage access permissions</li>
+                <li>View and edit your profile</li>
+                <li>Monitor access logs</li>
+            </ul>
+
+            <h3>Interacting with Pods Programmatically</h3>
+            
+            <p>Developers can interact with Pods using various libraries and SDKs:</p>
+            
+            <ul>
+                <li><a href="https://github.com/solid/solid-client-js" target="_blank">solid-client-js</a>: JavaScript library for Solid applications</li>
+                <li><a href="https://github.com/solid/solid-auth-client" target="_blank">solid-auth-client</a>: Authentication library for browser-based apps</li>
+                <li><a href="https://github.com/solid/query-ldflex" target="_blank">query-ldflex</a>: Simplified query syntax for Linked Data</li>
+                <li><a href="https://github.com/solid/solid-client-authn-js" target="_blank">solid-client-authn-js</a>: Authentication library for Node.js and browsers</li>
+            </ul>
+            
+            <p>These libraries provide high-level abstractions for common operations like:</p>
+            
+            <ul>
+                <li>Authentication and session management</li>
+                <li>Reading and writing data</li>
+                <li>Managing access controls</li>
+                <li>Subscribing to notifications</li>
+            </ul>
+
+            <h2>Pod Security</h2>
+
+            <h3>Security Considerations</h3>
+            
+            <p>When working with Pods, consider these security best practices:</p>
+            
+            <ul>
+                <li>Use strong authentication methods</li>
+                <li>Regularly review access permissions</li>
+                <li>Be cautious about which applications you authorize</li>
+                <li>Keep your Pod server software updated</li>
+                <li>Use HTTPS for all Pod communications</li>
+                <li>Consider encrypting sensitive data before storing it</li>
+            </ul>
+
+            <h3>Privacy Features</h3>
+            
+            <p>Pods include several privacy-enhancing features:</p>
+            
+            <ul>
+                <li>Fine-grained access control</li>
+                <li>Audit logs of data access</li>
+                <li>Ability to revoke application permissions</li>
+                <li>Data portability</li>
+                <li>No tracking or profiling by default</li>
+            </ul>
+            
+            <p>These features give users unprecedented control over their personal data.</p>
+
+            <h2>Real-World Examples</h2>
+
+            <h3>Example: Personal Data Management</h3>
+            
+            <p>Alice uses her Pod to store various types of personal data:</p>
+            
+            <ul>
+                <li>Contact information for friends and colleagues</li>
+                <li>Calendar events and appointments</li>
+                <li>Personal notes and documents</li>
+                <li>Photos and videos</li>
+                <li>Health and fitness data</li>
+            </ul>
+            
+            <p>She uses different Solid applications to manage each type of data, but all the data is stored in her Pod. She controls who can access each piece of data:</p>
+            
+            <ul>
+                <li>Her doctor can access her health records</li>
+                <li>Her friends can see her social posts and some photos</li>
+                <li>Her calendar app can read and write to her schedule</li>
+                <li>The public can see her basic profile information</li>
+            </ul>
+            
+            <p>If she decides to switch from one application to another (e.g., from one calendar app to another), her data remains in her Pod, and the new application can access it with her permission.</p>
+
+            <h3>Example: Collaborative Work</h3>
+            
+            <p>A team uses Pods for collaborative work:</p>
+            
+            <ol>
+                <li>Each team member has their own Pod</li>
+                <li>They create a shared workspace by granting each other access to specific folders</li>
+                <li>They use collaborative applications that read and write to their Pods</li>
+                <li>Changes are synchronized in real-time using the notification system</li>
+                <li>Access permissions are adjusted as team members join or leave</li>
+            </ol>
+            
+            <p>This approach gives them the benefits of collaborative tools while maintaining control over their data.</p>
+
+            <div class="callout">
+                <h4>Next Steps</h4>
+                <p>Now that you understand Pods, learn about <a href="linked-data.html">Linked Data</a> to see how data is structured and connected in the Solid ecosystem.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Sense-Proto. Documentation for Solid. <a href="https://solidproject.org/" target="_blank">Solid Project</a></p>
+    </footer>
+</body>
+</html> 
